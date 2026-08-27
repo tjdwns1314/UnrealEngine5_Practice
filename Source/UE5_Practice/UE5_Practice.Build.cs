@@ -7,8 +7,19 @@ public class UE5_Practice : ModuleRules
 	public UE5_Practice(ReadOnlyTargetRules Target) : base(Target)
 	{
 		PCHUsage = PCHUsageMode.UseExplicitOrSharedPCHs;
-	
-		PublicDependencyModuleNames.AddRange(new string[] { "Core", "CoreUObject", "Engine", "InputCore", "EnhancedInput" });
+
+        PublicIncludePaths.AddRange(
+    new string[] {
+                        "UE5_Practice" // 여러분 프로젝트 이름
+    }
+);
+
+        PrivateIncludePaths.AddRange(
+            new string[] {
+            }
+        );
+
+        PublicDependencyModuleNames.AddRange(new string[] { "Core", "CoreUObject", "Engine", "InputCore", "EnhancedInput" });
 
 		PrivateDependencyModuleNames.AddRange(new string[] {  });
 
