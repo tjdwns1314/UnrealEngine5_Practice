@@ -4,3 +4,5 @@
 #include "Modules/ModuleManager.h"
 
 IMPLEMENT_PRIMARY_GAME_MODULE( FDefaultGameModuleImpl, UE5_Practice, "UE5_Practice" );
+
+DEFINE_LOG_CATEGORY(TPS);
