@@ -31,4 +31,28 @@ public:
 	class USpringArmComponent* springArmComp;
 	UPROPERTY(VisibleAnywhere,Category=Camera)
 	class UCameraComponent* tpsCamComp;
+
+	UPROPERTY(EditDefaultsOnly, Category ="Input")
+	class UInputMappingContext* imc_TPS;
+	UPROPERTY(EditDefaultsOnly, Category ="Input")
+	class UInputAction* ia_LookUp;
+	UPROPERTY(EditDefaultsOnly, Category ="Input")
+	class UInputAction* ia_Turn;
+	UPROPERTY(EditDefaultsOnly, Category = "Input")
+	class UInputAction* ia_Move;
+	UPROPERTY(EditDefaultsOnly, Category = "Input")
+	class UInputAction* ia_Jump;
+
+
+
+	UPROPERTY(EditAnywhere, Category=PlayerSetting)
+	float walkSpeed = 600;
+	FVector direction;
+
+	void Move(const struct FInputActionValue& inputValue);
+	void Turn(const struct FInputActionValue& inputValue);
+	void LookUp(const struct FInputActionValue& inputValue);
+	void InputJump(const struct FInputActionValue& inputValue);
+
+	void PlayerMove();
 };

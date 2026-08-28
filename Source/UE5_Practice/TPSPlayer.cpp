@@ -4,6 +4,9 @@
 #include "TPSPlayer.h"
 #include <GameFramework/SpringArmComponent.h>
 #include <Camera/CameraComponent.h>
+#include "EnhancedInputSubsystems.h"
+#include "EnhancedInputComponent.h"
+#include "InputActionValue.h"
 
 // Sets default values
 ATPSPlayer::ATPSPlayer()
@@ -41,18 +44,79 @@ ATPSPlayer::ATPSPlayer()
 void ATPSPlayer::BeginPlay()
 {
 	Super::BeginPlay();
+
+	auto pc = Cast<APlayerController>(Controller);
+	if (pc)
+	{
+		auto subsystem = ULocalPlayer::GetSubsystem<UEnhancedInputLocalPlayerSubsystem>(pc->GetLocalPlayer());
+		if (subsystem)
+		{
+			subsystem->AddMappingContext(imc_TPS, 0);
+		}
+	}
+
 }
 
 // Called every frame
 void ATPSPlayer::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
+
+	PlayerMove();
 }
 
 // Called to bind functionality to input
 void ATPSPlayer::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
 {
 	Super::SetupPlayerInputComponent(PlayerInputComponent);
+
+	auto PlayerInput = CastChecked<UEnhancedInputComponent>(PlayerInputComponent);
+
+	if (PlayerInput)
+	{
+		PlayerInput->BindAction(ia_Turn, ETriggerEvent::Triggered, this, &ATPSPlayer::Turn);
+		PlayerInput->BindAction(ia_LookUp, ETriggerEvent::Triggered, this, &ATPSPlayer::LookUp);
+		PlayerInput->BindAction(ia_Move, ETriggerEvent::Triggered, this, &ATPSPlayer::Move);
+		PlayerInput->BindAction(ia_Jump, ETriggerEvent::Started, this, &ATPSPlayer::InputJump);
+	}
+
 }
+
+void ATPSPlayer::Move(const FInputActionValue& inputValue)
+{
+	FVector2D value = inputValue.Get<FVector2D>();
+	direction.X = value.X;
+	direction.Y = value.Y;
+}
+
+void ATPSPlayer::Turn(const FInputActionValue& inputValue)
+{
+	float value = inputValue.Get<float>();
+	AddControllerYawInput(value);
+
+}
+
+void ATPSPlayer::LookUp(const FInputActionValue& inputValue)
+{
+	float value = inputValue.Get<float>();
+	AddControllerPitchInput(value);
+}
+
+void ATPSPlayer::InputJump(const FInputActionValue& inputValue)
+{
+	Jump();
+}
+
+void ATPSPlayer::PlayerMove()
+{
+	direction = FTransform(GetControlRotation()).TransformVector(direction);
+	//FVector P0 = GetActorLocation();
+	//FVector vt = direction * walkSpeed * DeltaTime;
+	//FVector P = P0 + vt;
+	//SetActorLocation(P);
+	AddMovementInput(direction);
+	direction = FVector::ZeroVector;
+}
+
 
 
