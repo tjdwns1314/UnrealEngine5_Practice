@@ -7,6 +7,11 @@
 #include "EnhancedInputSubsystems.h"
 #include "EnhancedInputComponent.h"
 #include "InputActionValue.h"
+#include "Bullet.h"
+#include "Blueprint/UserWidget.h"
+#include "Kismet/GameplayStatics.h"
+#include "NiagaraFunctionLibrary.h"
+
 
 // Sets default values
 ATPSPlayer::ATPSPlayer()
@@ -38,6 +43,37 @@ ATPSPlayer::ATPSPlayer()
 	bUseControllerRotationYaw = true;
 
 	JumpMaxCount = 2;
+
+	// 4. 총 스켈레탈 메시 컴포넌트 등록
+	gunMeshComp = CreateDefaultSubobject<USkeletalMeshComponent>(TEXT("GunMeshComp"));
+	// 4-1 부모 컴포넌트를 Mesh 컴포넌트로 설정
+	gunMeshComp->SetupAttachment(GetMesh());
+	// 4-2. 스켈레탈 메시 데이터 로드
+	ConstructorHelpers::FObjectFinder<USkeletalMesh> TempGunMesh(TEXT("SkeletalMesh'/Game/Assets/MilitaryWeapSilver/Weapons/Assault_Rifle_A.Assault_Rifle_A'"));
+	// 4-3. 데이터 로드가 성공했다면
+	if (TempGunMesh.Succeeded())
+	{
+		// 4-4. 스켈레탈 메시 데이터 할당
+		gunMeshComp->SetSkeletalMesh(TempGunMesh.Object);
+		// 4-5 위치 조정하기
+		gunMeshComp->SetRelativeLocation(FVector(-14, 11, 138));	
+	}
+
+	// 5.스나이퍼건 컴포넌트 등록
+	sniperGunComp = CreateDefaultSubobject<USkeletalMeshComponent>(TEXT("SniperGunComp"));
+	// 5-1 부모 컴포넌트를 Mesh 컴포넌트로 설정
+	sniperGunComp->SetupAttachment(GetMesh());
+	// 5-2 스태틱 메시 데이터 로드
+	ConstructorHelpers::FObjectFinder<USkeletalMesh> TempSniperMesh(TEXT("SkeletalMesh'/Game/Assets/MilitaryWeapSilver/Weapons/Sniper_Rifle_A.Sniper_Rifle_A'"));
+
+	// 5-3 데이터 로드가 성공했다면
+	if (TempSniperMesh.Succeeded())
+	{
+		// 5-4. 스태틱 메시 데이터 할당
+		sniperGunComp->SetSkeletalMesh(TempSniperMesh.Object);
+		// 5-5 위치 조정하기
+		sniperGunComp->SetRelativeLocation(FVector(-22, 31, 128));
+	}
 }
 
 // Called when the game starts or when spawned
@@ -54,7 +90,10 @@ void ATPSPlayer::BeginPlay()
 			subsystem->AddMappingContext(imc_TPS, 0);
 		}
 	}
+	_sniperUI = CreateWidget(GetWorld(), sniperUIFactory);
 
+	gunMeshComp->SetVisibility(true);
+	sniperGunComp->SetVisibility(false);
 }
 
 // Called every frame
@@ -78,6 +117,10 @@ void ATPSPlayer::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent
 		PlayerInput->BindAction(ia_LookUp, ETriggerEvent::Triggered, this, &ATPSPlayer::LookUp);
 		PlayerInput->BindAction(ia_Move, ETriggerEvent::Triggered, this, &ATPSPlayer::Move);
 		PlayerInput->BindAction(ia_Jump, ETriggerEvent::Started, this, &ATPSPlayer::InputJump);
+		PlayerInput->BindAction(ia_Fire, ETriggerEvent::Started, this, &ATPSPlayer::InputFire);
+		PlayerInput->BindAction(ia_ChangeGun, ETriggerEvent::Started, this, &ATPSPlayer::ChangeGun);
+		PlayerInput->BindAction(ia_SniperAim, ETriggerEvent::Started, this, &ATPSPlayer::SniperAim);
+		PlayerInput->BindAction(ia_SniperAim, ETriggerEvent::Completed, this, &ATPSPlayer::SniperAim);
 	}
 
 }
@@ -116,6 +159,89 @@ void ATPSPlayer::PlayerMove()
 	//SetActorLocation(P);
 	AddMovementInput(direction);
 	direction = FVector::ZeroVector;
+}
+
+void ATPSPlayer::InputFire(const FInputActionValue& inputValue)
+{
+	if (!bUsingSniperGun)
+	{
+		// 총알 발사 처리
+		FTransform firePosition = gunMeshComp->GetSocketTransform(TEXT("MuzzleFlash"));
+		GetWorld()->SpawnActor<ABullet>(bulletFactory, firePosition);
+	}
+	else
+	{
+		// LineTrace 의 시작 위치
+		FVector startPos = tpsCamComp->GetComponentLocation();
+		// LineTrace 의 종료 위치
+		FVector endPos = tpsCamComp->GetComponentLocation() + tpsCamComp->GetForwardVector() * 5000;
+		// LineTrace 의 충돌 정보를 담을 변수
+		FHitResult hitInfo;
+		// 충돌 옵션 설정 변수
+		FCollisionQueryParams params;
+		// 자기 자신(플레이어)는 충돌에서 제외
+		params.AddIgnoredActor(this);
+		// Channel 필터를 이용한 LineTrace 충돌 검출(충돌 정보, 시작 위치, 종료 위치, 검출 채널, 충돌 옵션)
+		bool bHit = GetWorld()->LineTraceSingleByChannel(hitInfo, startPos, endPos, ECC_Visibility, params);
+		// LineTrace가 부딪혔을 때
+		if (bHit)
+		{
+			// 충돌 처리 -> 총알 파편 효과 재생
+			FTransform bulletTrans;
+			// 부딪힌 위치 할당
+			bulletTrans.SetLocation(hitInfo.ImpactPoint);
+			// 총알 파편 효과 인스턴스 생성
+			UNiagaraFunctionLibrary::SpawnSystemAtLocation(
+				GetWorld(),
+				bulletEffectFactory,
+				hitInfo.ImpactPoint
+			);
+			auto hitComp = hitInfo.GetComponent();
+			// 1.  만약 컴포넌트에 물리가 적용되어 있다면
+			if (hitComp && hitComp->IsSimulatingPhysics())
+			{
+				//2. 조준한 방향이 필요
+				FVector dir = (endPos - startPos).GetSafeNormal();
+				// 날려 버릴 힘(F=ma)
+				FVector force = dir * hitComp->GetMass() * 500000;
+				// 3.그 방향으로 날려 버리고 싶다.
+				hitComp->AddForceAtLocation(force, hitInfo.ImpactPoint);
+			}
+		}
+	}
+}
+
+void ATPSPlayer::ChangeGun()
+{
+	bUsingSniperGun = !bUsingSniperGun;
+	gunMeshComp->SetVisibility(!bUsingSniperGun);
+	sniperGunComp->SetVisibility(bUsingSniperGun);
+}
+
+void ATPSPlayer::SniperAim(const FInputActionValue& inputValue)
+{
+	if (!bUsingSniperGun)
+	{
+		return;
+	}
+	if (bSniperAim == false)
+	{
+		//1.스나이퍼 조준 모드 활성화
+		bSniperAim = true;
+		//2.스나이퍼조준 UI 등록
+		_sniperUI->AddToViewport();
+		// 3. 카메라의 시야각 Field Of View 설정
+		tpsCamComp->SetFieldOfView(45.0f);
+	}
+	else
+	{
+		//1.스나이퍼 조준 모드 비활성화
+		bSniperAim = false;
+		//2.스나이퍼 조준 UI 화면에서 제거
+		_sniperUI->RemoveFromParent();
+		// 3. 카메라의 시야각 원래대로 복원
+		tpsCamComp->SetFieldOfView(90.0f);
+	}
 }
 
 

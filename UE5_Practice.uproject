@@ -7,12 +7,19 @@
 		{
 			"Name": "UE5_Practice",
 			"Type": "Runtime",
-			"LoadingPhase": "Default"
+			"LoadingPhase": "Default",
+			"AdditionalDependencies": [
+				"Engine"
+			]
 		}
 	],
 	"Plugins": [
 		{
 			"Name": "ModelingToolsEditorMode",
+			"Enabled": true
+		},
+		{
+			"Name": "CascadeToNiagaraConverter",
 			"Enabled": true
 		}
 	]

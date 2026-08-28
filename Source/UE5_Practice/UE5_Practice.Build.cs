@@ -19,7 +19,7 @@ public class UE5_Practice : ModuleRules
             }
         );
 
-        PublicDependencyModuleNames.AddRange(new string[] { "Core", "CoreUObject", "Engine", "InputCore", "EnhancedInput" });
+        PublicDependencyModuleNames.AddRange(new string[] { "Core", "CoreUObject", "Engine", "InputCore", "EnhancedInput","UMG","Niagara"});
 
 		PrivateDependencyModuleNames.AddRange(new string[] {  });
 
