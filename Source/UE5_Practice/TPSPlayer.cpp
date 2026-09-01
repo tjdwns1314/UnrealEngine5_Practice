@@ -11,6 +11,7 @@
 #include "Blueprint/UserWidget.h"
 #include "Kismet/GameplayStatics.h"
 #include "NiagaraFunctionLibrary.h"
+#include "EnemyFSM.h"
 
 
 // Sets default values
@@ -182,7 +183,7 @@ void ATPSPlayer::InputFire(const FInputActionValue& inputValue)
 		// 자기 자신(플레이어)는 충돌에서 제외
 		params.AddIgnoredActor(this);
 		// Channel 필터를 이용한 LineTrace 충돌 검출(충돌 정보, 시작 위치, 종료 위치, 검출 채널, 충돌 옵션)
-		bool bHit = GetWorld()->LineTraceSingleByChannel(hitInfo, startPos, endPos, ECC_Visibility, params);
+		bool bHit = GetWorld()->LineTraceSingleByChannel(hitInfo, startPos, endPos, ECC_GameTraceChannel1, params);
 		// LineTrace가 부딪혔을 때
 		if (bHit)
 		{
@@ -206,6 +207,13 @@ void ATPSPlayer::InputFire(const FInputActionValue& inputValue)
 				FVector force = dir * hitComp->GetMass() * 500000;
 				// 3.그 방향으로 날려 버리고 싶다.
 				hitComp->AddForceAtLocation(force, hitInfo.ImpactPoint);
+			}
+			// 부딪힌 대상이 적인지 판단하기
+			auto enemy = hitInfo.GetActor()->GetDefaultSubobjectByName(TEXT("FSM"));
+			if (enemy)
+			{
+				auto enemyFSM = Cast<UEnemyFSM>(enemy);
+				enemyFSM->OnDamageProcess();
 			}
 		}
 	}
