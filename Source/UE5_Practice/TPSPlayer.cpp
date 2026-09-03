@@ -112,8 +112,8 @@ void ATPSPlayer::BeginPlay()
 void ATPSPlayer::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
-
 	PlayerMove();
+	//BIsRunShooting = BRunning && BShooting;
 }
 
 // Called to bind functionality to input
@@ -241,6 +241,28 @@ void ATPSPlayer::InputFire(const FInputActionValue& inputValue)
 			}
 		}
 	}
+	BShooting = true;
+
+	// 발사 "시점"에 뛰고 있었는지를 여기서만 판정 (Tick에서는 더 이상 안 건드림)
+	if (BRunning)
+	{
+		BIsRunShooting = true;
+	}
+
+	ThisDelegate.BindLambda([this]() {
+		BShooting = false;
+		BIsRunShooting = false;
+		});
+
+	GetWorld()->GetTimerManager().ClearTimer(ThisHandle);
+
+	GetWorld()->GetTimerManager().SetTimer(
+		ThisHandle,
+		ThisDelegate,
+		5.0f, // 실행 주기
+		false // 반복 여부
+	);
+
 }
 
 void ATPSPlayer::ChangeGun()
@@ -279,15 +301,17 @@ void ATPSPlayer::SniperAim(const FInputActionValue& inputValue)
 void ATPSPlayer::InputRun()
 {
 	auto movement = GetCharacterMovement();
-	// 현재 달리기 모드라면
-	if (movement->MaxWalkSpeed > walkSpeed)
+
+	BRunning = !BRunning;
+
+	if (BRunning)
 	{
-		// 걷기 속도로 전환
-		movement->MaxWalkSpeed = walkSpeed;
+		movement->MaxWalkSpeed = runSpeed;
 	}
 	else
 	{
-		movement->MaxWalkSpeed = runSpeed;
+		movement->MaxWalkSpeed = walkSpeed;
+		BIsRunShooting = false;
 	}
 }
 

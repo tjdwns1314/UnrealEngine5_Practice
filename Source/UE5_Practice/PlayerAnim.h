@@ -47,8 +47,12 @@ public :
 	// 공격 애니메이션 재생 함수
 	void PlayAttackAnim();
 
-	// Fire 관련 변수
+
+
 	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = PlayerAnim)
-	float bIsShooted = false;
+	bool BIsRunShooting = false;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = PlayerAnim)
+	class ATPSPlayer* tpsPlayer;
 
 };

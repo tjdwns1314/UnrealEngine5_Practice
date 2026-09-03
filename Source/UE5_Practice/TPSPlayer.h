@@ -117,4 +117,42 @@ public:
 	UPROPERTY(EditDefaultsOnly, Category=Sound)
 	class USoundBase* bulletSound;
 
+
+
+
+
+
+	// 개선해볼것 - 총 발사 관련 
+
+	// 총을 쐈는지
+	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = Shooting)
+	bool BShooting = false;
+
+	// 달리고 있는지
+	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = Shooting)
+	bool BRunning = false;
+
+	// 앞으로 총을 두는 상태가 필요한지 체크 
+	UPROPERTY(EditDefaultsOnly,BlueprintReadWrite, Category = Shooting)
+	bool BIsRunShooting = false;
+
+	// 총 쏘고 전환시간
+	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category=Shooting)
+	float TransitionTime = 5.0f;
+
+	// 타이머 핸들 선언
+	FTimerHandle ThisHandle;
+
+	// 타이머 델리게이트 선언
+	FTimerDelegate ThisDelegate;
+
+
+
+
+
+	// movement->MaxWalkSpeed 가 300 초과 && 총을 쐈으면 BIsRunShooting = true로 함 (타이머를 돌림 5초)
+	// movement->MaxWalkSpeed 가 300이하 || 5초가 지났으면 (타이머가 다 되면) BIsRunShooting = false로 바꿈
+
+	// BIsRunShooting에 따라 
+
 };

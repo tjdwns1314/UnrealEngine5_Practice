@@ -11,11 +11,12 @@ void UPlayerAnim::NativeInitializeAnimation()
 	Super::NativeInitializeAnimation();
 
 	// 초기화 될때 캐싱해두기
-	Character = Cast<ATPSPlayer>(TryGetPawnOwner());
+	Character = Cast<ACharacter>(TryGetPawnOwner());
 	if (Character != nullptr)
 	{
 		MovementComponent = Character->GetCharacterMovement();
 	}
+	tpsPlayer = Cast<ATPSPlayer>(TryGetPawnOwner());
 }
 
 void UPlayerAnim::NativeUpdateAnimation(float DeltaSeconds)
@@ -32,6 +33,10 @@ void UPlayerAnim::NativeUpdateAnimation(float DeltaSeconds)
 
 		// 방향 계산
 		Direction = CalculateDirection(Velocity, Character->GetActorRotation());
+	}
+	if (tpsPlayer)   // null 체크도 추가 권장
+	{
+		BIsRunShooting = tpsPlayer->BIsRunShooting;
 	}
 }
 
