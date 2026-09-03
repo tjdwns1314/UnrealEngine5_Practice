@@ -46,7 +46,7 @@ public:
 
 
 	UPROPERTY(EditAnywhere, Category=PlayerSetting)
-	float walkSpeed = 600;
+	float walkSpeed = 300;
 	FVector direction;
 
 	void Move(const struct FInputActionValue& inputValue);
@@ -100,4 +100,21 @@ public:
 	// 총알 파편 효과 공장
 	UPROPERTY(EditAnywhere, Category=BulletEffect)
 	class UNiagaraSystem* bulletEffectFactory;
+
+	UPROPERTY(EditAnywhere, Category = PlayerSetting)
+	float runSpeed = 600;
+
+	// 달리기 입력
+	UPROPERTY(EditDefaultsOnly, Category = "Input")
+	class UInputAction* ia_Run;
+	// 달리기 이벤트 처리함수
+	void InputRun();
+
+	UPROPERTY(EditDefaultsOnly, Category = CameraMotion)
+	TSubclassOf<class UCameraShakeBase> cameraShake;
+
+	//총알 발사 사운드
+	UPROPERTY(EditDefaultsOnly, Category=Sound)
+	class USoundBase* bulletSound;
+
 };
