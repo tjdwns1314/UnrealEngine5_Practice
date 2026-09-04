@@ -8,6 +8,9 @@
 #include "UE5_Practice.h"
 #include "Components/CapsuleComponent.h"
 #include "EnemyAnim.h"
+#include "AIController.h"
+#include "NavigationSystem.h"
+#include "Navigation/PathFollowingComponent.h"
 
 // Sets default values for this component's properties
 UEnemyFSM::UEnemyFSM()
@@ -34,6 +37,9 @@ void UEnemyFSM::BeginPlay()
 
 	// UEnemyAnim* 할당
 	anim = Cast<UEnemyAnim>(me->GetMesh()->GetAnimInstance());
+
+	//AAIController 할당하기
+	ai = Cast<AAIController>(me->GetController());
 }
 
 
@@ -82,6 +88,8 @@ void UEnemyFSM::IdleState()
 
 	// 애니메이션 상태 동기화
 	anim->animState = mState;
+	// 최초 랜덤한 위치 정해주기
+	GetRandomPositionInNavMesh(me->GetActorLocation(), 500, randomPos);
 }
 
 void UEnemyFSM::MoveState()
@@ -91,12 +99,48 @@ void UEnemyFSM::MoveState()
 	// 2. 방향이 필요하다.
 	FVector dir = destination - me->GetActorLocation();
 	// 3. 방향으로 이동하고 싶다.
-	me->AddMovementInput(dir.GetSafeNormal());
+	 me->AddMovementInput(dir.GetSafeNormal());
+	// ai->MoveToLocation(destination);
 
+	// NavigationSystem 객체 얻어오기
+	auto ns = UNavigationSystemV1::GetNavigationSystem(GetWorld());
+
+	// 목적지 길 찾기 경로 데이터 검색
+	FPathFindingQuery query; // 길 찾기 요청서
+	FAIMoveRequest req; // AI 이동 요청
+
+	req.SetAcceptanceRadius(3); //목적지에서 얼마만큼 가까워지면 도착했다고 판단할것인지
+	req.SetGoalLocation(destination); // 최종 목적지 설정
+	// 길 찾기를 위한 쿼리 생성
+	ai->BuildPathfindingQuery(req, query); // req의 내용으로 query를 채운다. 
+	// 길 찾기 결과를 가져오기
+	FPathFindingResult r = ns->FindPathSync(query);
+
+	// 목적지까지의 길 찾기 성공 여부 확인
+	if (r.Result == ENavigationQueryResult::Success)
+	{
+		// 타깃쪽으로 이동
+		ai->MoveToLocation(destination);
+	}
+	else
+	{
+		// 랜덤 위치로 이동
+		auto result = ai->MoveToLocation(randomPos);
+		// 목적지에 도착하면
+		if (result == EPathFollowingRequestResult::AlreadyAtGoal)
+		{
+			// 새로운 랜덤 위치 가져오기
+			GetRandomPositionInNavMesh(me->GetActorLocation(), 500, randomPos);
+		}
+
+	}
+	
 	// 타깃과 가까워지면 공격 상태로 전환하고 싶다.
 	// 1. 만약 거리가 공격 범위 안에 들어오면
 	if (dir.Size() < attackRange)
 	{
+		// 길 찾기 기능 정지
+		ai->StopMovement();
 		//2. 공격 상태로 전환하고 싶다.
 		mState = EEnemyState::Attack;
 		// 애니메이션 상태 동기화
@@ -116,6 +160,7 @@ void UEnemyFSM::AttackState()
 	// 2. 공격 시간이 됐으니까
 	if (currentTime > attackDelayTime)
 	{
+		//BisAttacking = true;
 		// 3. 공격하고 싶다.
 		PRINT_LOG(TEXT("Attack!!!!!"));
 		// 경과 시간 초기화
@@ -123,6 +168,7 @@ void UEnemyFSM::AttackState()
 		anim->bAttackPlay = true;
 	}
 
+	if (anim->bAttackPlay) return;
 	// 목표 : 타깃이 공격 범위를 벗어나면 상태를 이동으로 전환하고 싶다.
 	// 1. 타깃과의 거리가 필요하다.
 	float distance = FVector::Distance(target->GetActorLocation(), me->GetActorLocation());
@@ -133,6 +179,7 @@ void UEnemyFSM::AttackState()
 		mState = EEnemyState::Move;
 		// 애니메이션 상태 동기화
 		anim->animState = mState;
+		GetRandomPositionInNavMesh(me->GetActorLocation(), 500, randomPos);
 	}
 }
 
@@ -192,7 +239,7 @@ void UEnemyFSM::OnDamageProcess()
 		anim->PlayDamageAnim(FName(*sectionName));
 	}
 	// 그렇지 않다면
-	else
+	else if (!BisDie)
 	{
 		// 상태를 죽음으로 전환
 		mState = EEnemyState::Die;
@@ -200,8 +247,19 @@ void UEnemyFSM::OnDamageProcess()
 		me->GetCapsuleComponent()->SetCollisionEnabled(ECollisionEnabled::NoCollision);
 
 		anim->PlayDamageAnim(TEXT("Die"));
+		BisDie = true;
 	}
 	// 애니메이션 상태 동기화
 	anim->animState = mState;
+	ai->StopMovement();
+}
+
+bool UEnemyFSM::GetRandomPositionInNavMesh(FVector centerLocation, float radius, FVector& dest)
+{
+	auto ns = UNavigationSystemV1::GetNavigationSystem(GetWorld());
+	FNavLocation loc;
+	bool result = ns->GetRandomReachablePointInRadius(centerLocation, radius, loc);
+	dest = loc.Location;
+	return result;
 }
 

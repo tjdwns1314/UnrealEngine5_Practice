@@ -95,4 +95,23 @@ public:
 	// 사용 중인 애니메이션 블루프린트
 	UPROPERTY()
 	class UEnemyAnim* anim;
+
+	// Enemy를 소유하고 있는 AIController
+	UPROPERTY()
+	class AAIController* ai;
+
+	// 길 찾기 수행시 랜덤 위치
+	FVector randomPos;
+	// 랜덤 위치 가져오기
+	bool GetRandomPositionInNavMesh(FVector centerLocation, float radius, FVector& dest);
+
+	// 이미 죽었는지
+	bool BisDie;
+
+
+	// 이 두개를 내적해서 예각이면 공격하고 둔각이면 다시 movestate로 이동 
+	// 벡터
+	FVector enemyViewVector;
+	FVector enemyToPlayerVector;
+
 };
