@@ -14,6 +14,7 @@
 #include "EnemyFSM.h"
 #include "GameFrameWork/CharacterMovementComponent.h"
 #include "PlayerAnim.h"
+#include "PlayerMove.h"
 
 
 // Sets default values
@@ -83,6 +84,8 @@ ATPSPlayer::ATPSPlayer()
 	{
 		bulletSound = tempSound.Object;
 	}
+
+	playerMove = CreateDefaultSubobject<UPlayerMove>(TEXT("PlayerMove"));
 }
 
 // Called when the game starts or when spawned
@@ -125,6 +128,9 @@ void ATPSPlayer::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent
 
 	if (PlayerInput)
 	{
+		// 컴포넌트에서 입력 바인딩 처리하도록 호출 
+		playerMove->SetupInputBinding(PlayerInput);
+
 		PlayerInput->BindAction(ia_Turn, ETriggerEvent::Triggered, this, &ATPSPlayer::Turn);
 		PlayerInput->BindAction(ia_LookUp, ETriggerEvent::Triggered, this, &ATPSPlayer::LookUp);
 		PlayerInput->BindAction(ia_Move, ETriggerEvent::Triggered, this, &ATPSPlayer::Move);

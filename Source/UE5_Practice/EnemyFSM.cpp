@@ -84,12 +84,13 @@ void UEnemyFSM::IdleState()
 		mState = EEnemyState::Move;
 		// 경과 시간 초기화
 		currentTime = 0;
-	}
 
-	// 애니메이션 상태 동기화
-	anim->animState = mState;
-	// 최초 랜덤한 위치 정해주기
-	GetRandomPositionInNavMesh(me->GetActorLocation(), 500, randomPos);
+
+		// 애니메이션 상태 동기화
+		anim->animState = mState;
+		// 최초 랜덤한 위치 정해주기
+		GetRandomPositionInNavMesh(me->GetActorLocation(), 500, randomPos);
+	}
 }
 
 void UEnemyFSM::MoveState()
@@ -99,7 +100,7 @@ void UEnemyFSM::MoveState()
 	// 2. 방향이 필요하다.
 	FVector dir = destination - me->GetActorLocation();
 	// 3. 방향으로 이동하고 싶다.
-	 me->AddMovementInput(dir.GetSafeNormal());
+	// me->AddMovementInput(dir.GetSafeNormal());
 	// ai->MoveToLocation(destination);
 
 	// NavigationSystem 객체 얻어오기
@@ -124,6 +125,7 @@ void UEnemyFSM::MoveState()
 	}
 	else
 	{
+		PRINT_LOG(TEXT("Rdm pos : %s"), *(randomPos.ToString()));
 		// 랜덤 위치로 이동
 		auto result = ai->MoveToLocation(randomPos);
 		// 목적지에 도착하면

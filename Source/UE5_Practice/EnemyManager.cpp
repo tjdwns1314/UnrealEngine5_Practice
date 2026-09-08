@@ -3,6 +3,8 @@
 
 #include "EnemyManager.h"
 #include "Enemy.h"
+//#include <EngineUtils.h>
+#include <Kismet/GameplayStatics.h>
 
 // Sets default values
 AEnemyManager::AEnemyManager()
@@ -23,6 +25,9 @@ void AEnemyManager::BeginPlay()
 	float createTime = FMath::RandRange(minTime, maxTime);
 	// 2. Timer Manager한테 알람 등록
 	GetWorld()->GetTimerManager().SetTimer(spawnTimerHandle, this, &AEnemyManager::CreateEnemy, createTime);
+
+	// 스폰 위치 동적 할당
+	FindSpawnPoints();
 }
 
 void AEnemyManager::CreateEnemy()
@@ -35,6 +40,25 @@ void AEnemyManager::CreateEnemy()
 	// 다시 랜덤 시간에 CreateEnemy 함수가 호출되도록 타이머 설정
 	float createTime = FMath::RandRange(minTime, maxTime);
 	GetWorld()->GetTimerManager().SetTimer(spawnTimerHandle, this, &AEnemyManager::CreateEnemy, createTime);
+}
+
+void AEnemyManager::FindSpawnPoints()
+{
+	// 검색으로 찾은 결과를 저장할 배열
+	TArray<AActor*> allActors;
+	// 원하는 타입의 액터 모두 찾아오기
+	UGameplayStatics::GetAllActorsOfClass(GetWorld(), AActor::StaticClass(), allActors);
+	// 찾은 결과가 있을 경우 반복적으로
+	for (auto spawn : allActors)
+	{
+		// 찾은 액터의 이름에 해당 문자열을 포함하고 있다면
+		if (spawn->GetName().Contains(TEXT("BP_EnemySpawnPoint")))
+		{
+			// 스폰 목록에 추가
+			spawnPoints.Add(spawn);
+		}
+	}
+
 }
 
 // Called every frame
