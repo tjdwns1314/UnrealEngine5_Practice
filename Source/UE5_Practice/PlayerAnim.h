@@ -55,4 +55,6 @@ public :
 	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = PlayerAnim)
 	class ATPSPlayer* tpsPlayer;
 
+	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = PlayerAnim)
+	class UPlayerFire* playerFire;
 };
