@@ -10,7 +10,7 @@
 /**
  * 
  */
-UCLASS()
+UCLASS(ClassGroup=(PlayerComponent),meta = (BlueprintSpawnableComponent))
 class UE5_PRACTICE_API UPlayerFire : public UPlayerBaseComponent
 {
 	GENERATED_BODY()

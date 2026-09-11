@@ -8,6 +8,8 @@
 #include "EnhancedInputComponent.h"
 #include "PlayerMove.h"
 #include "PlayerFire.h"
+#include "UE5_Practice.h"
+#include <Kismet/GameplayStatics.h>
 
 
 // Sets default values
@@ -73,7 +75,7 @@ ATPSPlayer::ATPSPlayer()
 	}
 
 	playerMove = CreateDefaultSubobject<UPlayerMove>(TEXT("PlayerMove"));
-	playerFire = CreateDefaultSubobject<UPlayerFire>(TEXT("PlayerFire"));
+	//playerFire = CreateDefaultSubobject<UPlayerFire>(TEXT("PlayerFire"));
 }
 
 // Called when the game starts or when spawned
@@ -93,6 +95,8 @@ void ATPSPlayer::BeginPlay()
 
 	gunMeshComp->SetVisibility(true);
 	sniperGunComp->SetVisibility(false);
+
+	hp = initialHp;
 }
 
 // Called every frame
@@ -110,10 +114,33 @@ void ATPSPlayer::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent
 
 	if (PlayerInput)
 	{
+		// 컴포넌트에서 입력 바인딩 처리하도록 호출
+		onInputBindingDelegate.Broadcast(PlayerInput);
+
+
+
 		// 컴포넌트에서 입력 바인딩 처리하도록 호출 
-		playerMove->SetupInputBinding(PlayerInput);
-		playerFire->SetupInputBinding(PlayerInput);
+		/*playerMove->SetupInputBinding(PlayerInput);
+		playerFire->SetupInputBinding(PlayerInput);*/
 	}
+}
+
+void ATPSPlayer::OnHitEvent()
+{
+	PRINT_LOG(TEXT("Damaged !!!!!"));
+	hp--;
+	if (hp <= 0)
+	{
+		PRINT_LOG(TEXT("Player is dead!"));
+		OnGameOver();
+	}
+
+}
+
+void ATPSPlayer::OnGameOver_Implementation()
+{
+	// 게임 오버 시 일시 정지
+	UGameplayStatics::SetGamePaused(GetWorld(), true);
 }
 
 

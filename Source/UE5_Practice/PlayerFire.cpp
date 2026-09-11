@@ -47,6 +47,10 @@ void UPlayerFire::SetupInputBinding(UEnhancedInputComponent* PlayerInput)
 void UPlayerFire::ChangeGun()
 {
 	bUsingSniperGun = !bUsingSniperGun;
+
+	if (bUsingSniperGun)me->OnUsingGrenade(false);
+	else me->OnUsingGrenade(true);
+
 	gunMeshComp->SetVisibility(!bUsingSniperGun);
 	sniperGunComp->SetVisibility(bUsingSniperGun);
 }

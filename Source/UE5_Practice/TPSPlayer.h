@@ -6,12 +6,21 @@
 #include "GameFramework/Character.h"
 #include "TPSPlayer.generated.h"
 
+DECLARE_MULTICAST_DELEGATE_OneParam(FInputBindingDelegate, class UEnhancedInputComponent*);
+
+
+
+
 UCLASS()
 class UE5_PRACTICE_API ATPSPlayer : public ACharacter
 {
 	GENERATED_BODY()
 
 public:
+
+	// 입력 바인딩 델리게이트
+	FInputBindingDelegate onInputBindingDelegate;
+
 	// Sets default values for this character's properties
 	ATPSPlayer();
 
@@ -27,6 +36,29 @@ public:
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
 
 public:
+
+	// 현재 체력
+	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = Health)
+	int32 hp;
+	// 초기 hp 값
+	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = Health)
+	int32 initialHp = 1;
+
+	// 피격 당했을 때 처리
+	UFUNCTION(BlueprintCallable, Category = Health)
+	void OnHitEvent();
+
+	// 게임 오버될 때 호출될 함수
+	UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category = Health)
+	void OnGameOver();
+
+	// 총 바꿀 때 호출되는 이벤트 함수
+	UFUNCTION(BlueprintImplementableEvent, BlueprintCallable, Category = Health)
+	void OnUsingGrenade(bool isGrenade);
+
+
+
+
 	UPROPERTY(VisibleAnywhere, Category = Camera)
 	class USpringArmComponent* springArmComp;
 	UPROPERTY(VisibleAnywhere,BlueprintReadOnly,Category=Camera)
@@ -49,7 +81,7 @@ public:
 		UPROPERTY(VisibleAnywhere, Category = Component)
 		class UPlayerBaseComponent* playerMove;
 
-		UPROPERTY(VIsibleAnywhere, Category = Component)
-		class UPlayerBaseComponent* playerFire;
+		//UPROPERTY(VIsibleAnywhere, Category = Component)
+		//class UPlayerBaseComponent* playerFire;
 
 };
