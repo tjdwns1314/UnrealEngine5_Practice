@@ -7,7 +7,7 @@
 #include "Bullet.h"
 #include "Blueprint/UserWidget.h"
 #include"Kismet/GameplayStatics.h"
-#include"EnemyFSM.h"
+#include"Enemy/EnemyFSM.h"
 #include"Camera/CameraComponent.h"
 #include"PlayerAnim.h"
 #include "NiagaraFunctionLibrary.h"
@@ -148,15 +148,8 @@ void UPlayerFire::InputFire(const FInputActionValue& inputValue)
 	}
 	BShooting = true;
 
-	// 발사 "시점"에 뛰고 있었는지를 여기서만 판정 (Tick에서는 더 이상 안 건드림)
-	if (BRunning)
-	{
-		BIsRunShooting = true;
-	}
-
 	ThisDelegate.BindLambda([this]() {
 		BShooting = false;
-		BIsRunShooting = false;
 		});
 
 	GetWorld()->GetTimerManager().ClearTimer(ThisHandle);
@@ -164,7 +157,7 @@ void UPlayerFire::InputFire(const FInputActionValue& inputValue)
 	GetWorld()->GetTimerManager().SetTimer(
 		ThisHandle,
 		ThisDelegate,
-		5.0f, // 실행 주기
+		TransitionTime, // 실행 주기
 		false // 반복 여부
 	);
 

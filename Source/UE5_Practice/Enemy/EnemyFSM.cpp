@@ -2,7 +2,7 @@
 
 
 #include "EnemyFSM.h"
-#include "TPSPlayer.h"
+#include "Player/TPSPlayer.h"
 #include "Enemy.h"
 #include "Kismet/GameplayStatics.h"
 #include "UE5_Practice.h"
@@ -50,7 +50,7 @@ void UEnemyFSM::TickComponent(float DeltaTime, ELevelTick TickType, FActorCompon
 
 	// 실행 창에 상태 메시지 출력하기
 	FString logMsg = UEnum::GetValueAsString(mState);
-	GEngine->AddOnScreenDebugMessage(-1, 1, FColor::Cyan, logMsg);
+	//GEngine->AddOnScreenDebugMessage(-1, 1, FColor::Cyan, logMsg);
 
 	switch (mState)
 	{

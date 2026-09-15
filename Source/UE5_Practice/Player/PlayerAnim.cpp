@@ -5,6 +5,7 @@
 #include "TPSPlayer.h"
 #include "PlayerFIre.h"
 #include "GameFramework/CharacterMovementComponent.h"
+#include "PlayerMove.h"
 
 
 void UPlayerAnim::NativeInitializeAnimation()
@@ -16,18 +17,30 @@ void UPlayerAnim::NativeInitializeAnimation()
 
 	MovementComponent = nullptr;
 	playerFire = nullptr;
+	playerMove = nullptr;
+
 	if (Character != nullptr)
 	{
 		MovementComponent = Character->GetCharacterMovement();
 		playerFire = Character->FindComponentByClass<UPlayerFire>();
+		playerMove = Character->FindComponentByClass<UPlayerMove>();
 	}
 	tpsPlayer = Cast<ATPSPlayer>(TryGetPawnOwner());
-
 }
 
 void UPlayerAnim::NativeUpdateAnimation(float DeltaSeconds)
 {
 	Super::NativeUpdateAnimation(DeltaSeconds);
+
+	if (!playerFire && Character)
+	{
+		playerFire = Character->FindComponentByClass<UPlayerFire>();
+	}
+
+	if (!playerMove && Character)
+	{
+		playerMove = Character->FindComponentByClass<UPlayerMove>();
+	}
 
 	if (Character && MovementComponent)
 	{
@@ -40,9 +53,13 @@ void UPlayerAnim::NativeUpdateAnimation(float DeltaSeconds)
 		// 방향 계산
 		Direction = CalculateDirection(Velocity, Character->GetActorRotation());
 	}
-	if (playerFire)   // null 체크도 추가 권장
+	if (playerFire && playerMove)   // null 체크도 추가 권장
 	{
-		BIsRunShooting = playerFire->BIsRunShooting;
+		BIsRunShooting = playerFire->BShooting && playerMove->BRunning;
+	}
+	else
+	{
+		BIsRunShooting = false;
 	}
 }
 

@@ -45,6 +45,9 @@ public:
 	// 달리기 이벤트 처리함수
 	void InputRun();
 
+	// 달리면서 총쏘는걸 위해 달리기 함수를 2개로 나눔
+	void RunStarted();
+	void RunCompleted();
 
 	// --- 점프 ---
 	void InputJump(const struct FInputActionValue& inputValue);

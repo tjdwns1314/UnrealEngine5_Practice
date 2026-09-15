@@ -57,4 +57,7 @@ public :
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = PlayerAnim)
 	class UPlayerFire* playerFire;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = PlayerAnim)
+	class UPlayerMove* playerMove;
 };

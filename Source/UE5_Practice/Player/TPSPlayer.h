@@ -8,8 +8,8 @@
 
 DECLARE_MULTICAST_DELEGATE_OneParam(FInputBindingDelegate, class UEnhancedInputComponent*);
 
-
-
+class UPlayerMove;
+class UPlayerFire;
 
 UCLASS()
 class UE5_PRACTICE_API ATPSPlayer : public ACharacter
@@ -78,10 +78,11 @@ public:
 
 
 	public:
-		UPROPERTY(VisibleAnywhere, Category = Component)
-		class UPlayerBaseComponent* playerMove;
+		UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Component)
+		UPlayerMove* playerMove;
 
-		//UPROPERTY(VIsibleAnywhere, Category = Component)
-		//class UPlayerBaseComponent* playerFire;
+		// 블프에서 만들었음
+		//UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Component)
+		//UPlayerFire* playerFire;
 
 };

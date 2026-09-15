@@ -10,8 +10,8 @@ void UPlayerMove::SetupInputBinding(UEnhancedInputComponent* PlayerInput)
 	PlayerInput->BindAction(ia_Turn, ETriggerEvent::Triggered, this, &UPlayerMove::Turn);
 	PlayerInput->BindAction(ia_LookUp, ETriggerEvent::Triggered, this, &UPlayerMove::LookUp);
 	PlayerInput->BindAction(ia_Move, ETriggerEvent::Triggered, this, &UPlayerMove::Move);
-	PlayerInput->BindAction(ia_Run, ETriggerEvent::Started, this, &UPlayerMove::InputRun);
-	PlayerInput->BindAction(ia_Run, ETriggerEvent::Completed, this, &UPlayerMove::InputRun);
+	PlayerInput->BindAction(ia_Run, ETriggerEvent::Started, this, &UPlayerMove::RunStarted);
+	PlayerInput->BindAction(ia_Run, ETriggerEvent::Completed, this, &UPlayerMove::RunCompleted);
 	PlayerInput->BindAction(ia_Jump, ETriggerEvent::Started, this, &UPlayerMove::InputJump);
 }
 
@@ -79,6 +79,17 @@ void UPlayerMove::InputRun()
 		movement->MaxWalkSpeed = walkSpeed;
 		BIsRunShooting = false;
 	}
+}
+void UPlayerMove::RunStarted()
+{
+	BRunning = true;
+	me->GetCharacterMovement()->MaxWalkSpeed = runSpeed;
+}
+
+void UPlayerMove::RunCompleted()
+{
+	BRunning = false;
+	me->GetCharacterMovement()->MaxWalkSpeed = walkSpeed;
 }
 
 void UPlayerMove::InputJump(const FInputActionValue& inputValue)
