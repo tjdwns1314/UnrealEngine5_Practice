@@ -130,4 +130,16 @@ public:
 
 	// 타이머 델리게이트 선언
 	FTimerDelegate ThisDelegate;
+
+	UPROPERTY(EditDefaultsOnly, Category = "MyGame")
+	TObjectPtr<class UMaterialInterface> BulletDecalMaterial;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = Shooting)
+	FVector DecalSize = FVector(5,5,5);
+	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = Shooting)
+	float DecalLifetime = 2;
+	UPROPERTY(EditDefaultsOnly)
+	TObjectPtr<class UNiagaraSystem> BeamParticles;
+
+	FVector GetMuzzleFlashLocation() const;
 };

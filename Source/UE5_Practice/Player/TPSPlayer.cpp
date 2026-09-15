@@ -10,6 +10,7 @@
 #include "PlayerFire.h"
 #include "UE5_Practice.h"
 #include <Kismet/GameplayStatics.h>
+#include "MyHUD.h"
 
 
 
@@ -104,6 +105,7 @@ void ATPSPlayer::BeginPlay()
 void ATPSPlayer::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
+	UpdateCrossHair();
 }
 
 // Called to bind functionality to input
@@ -137,6 +139,43 @@ void ATPSPlayer::OnHitEvent()
 	}
 
 }
+
+void ATPSPlayer::UpdateCrossHair()
+{
+	APlayerController* PlayerController = Cast<APlayerController>(GetController());
+	if (PlayerController == nullptr)
+		return;
+
+	// 크로스헤어가 그려지고 있는 HUD 가져오기
+	AMyHUD* HUD = Cast<AMyHUD>(PlayerController->GetHUD());
+	if (HUD == nullptr)
+		return;
+
+
+	// 1. 이동이 있으면 크로스헤어 벌어진다.
+	// Velocity 값 기준으로 얼만큼 벌어지게 할지 결정.
+	// 최대 이속 대비, 현재 이속값을 계산해서 얼마나 크로스헤어가 벌어지는지 계산
+	FVector2D WalkSpeedRange(0.f, GetCharacterMovement()->MaxWalkSpeed);
+	FVector2D VelocityMulRange(0.f, 1.f);
+	FVector Velocity = GetVelocity();
+	Velocity.Z = 0; // 점프속도는 무시
+
+	// 최대속도 600, 현재 이속 : 300 -> 0.5f 라는 수치를 얻고싶다.
+	// 최대속도 600, 현재 이속 : 600 -> 1.0f
+	float CrosshairVelocityAlpha = FMath::GetMappedRangeValueClamped(WalkSpeedRange, VelocityMulRange, Velocity.Size());
+
+	// 환산된값 0~1 사이의 기준으로, Weapon Min,Max 값에 대응하는 값을 뽑는다.
+	// min :2, max:6, 2~6 사이의 적절한값으로 환산해준다.
+	float CrosshairVelocityFactor = FMath::Lerp(CrosshairSpreadMin, CrosshairSpreadMax, CrosshairVelocityAlpha);
+
+	// 최종값 : 이동 Factor + Fire Factor
+	float CrosshairFireFactor = 0;	//@TODO : 총기마다 벌어지는 크로스헤어 값
+	float TotalCrosshairFactor = CrosshairVelocityFactor + CrosshairFireFactor;
+
+	// 최종적으로 HUD 객체에 Spread 정보를 전달한다.
+	HUD->SetCrosshairSpread(TotalCrosshairFactor);
+}
+
 
 void ATPSPlayer::OnGameOver_Implementation()
 {

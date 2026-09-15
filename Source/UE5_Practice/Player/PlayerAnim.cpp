@@ -32,6 +32,8 @@ void UPlayerAnim::NativeUpdateAnimation(float DeltaSeconds)
 {
 	Super::NativeUpdateAnimation(DeltaSeconds);
 
+	
+
 	if (!playerFire && Character)
 	{
 		playerFire = Character->FindComponentByClass<UPlayerFire>();
@@ -60,6 +62,21 @@ void UPlayerAnim::NativeUpdateAnimation(float DeltaSeconds)
 	else
 	{
 		BIsRunShooting = false;
+	}
+	// 왼손이 있어야할 위치를 소켓정보를 통해 갱신한다.
+	if (tpsPlayer && tpsPlayer->gunMeshComp)
+	{
+		// 무기의 LeftHandSocket 위치를 월드 좌표로 가져온다.
+		FTransform LeftHandWorldTransform = tpsPlayer->gunMeshComp->GetSocketTransform(FName("LeftHandSocket"), ERelativeTransformSpace::RTS_World);
+
+		FVector OutPosition;
+		FRotator OutRotator;
+		Character->GetMesh()->TransformToBoneSpace(FName("hand_r"),
+			LeftHandWorldTransform.GetLocation(), FRotator::ZeroRotator, OutPosition, OutRotator);
+
+		// hand_r 공간으로 변환한 좌표를 animation 좌표로 설정한다.
+		LeftHandTransform.SetLocation(OutPosition);
+		LeftHandTransform.SetRotation(FQuat(OutRotator));
 	}
 }
 

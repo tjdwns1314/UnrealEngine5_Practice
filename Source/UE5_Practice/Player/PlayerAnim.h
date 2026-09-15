@@ -60,4 +60,7 @@ public :
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = PlayerAnim)
 	class UPlayerMove* playerMove;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = PlayerAnim)
+	FTransform LeftHandTransform;
 };

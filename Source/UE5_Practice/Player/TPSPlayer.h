@@ -81,8 +81,15 @@ public:
 		UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Component)
 		UPlayerMove* playerMove;
 
-		// 블프에서 만들었음
+		// 블프에서 컴포넌트를 대신 만들었음
 		//UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Component)
 		//UPlayerFire* playerFire;
+
+		void UpdateCrossHair();
+
+		UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Crosshair)
+		float CrosshairSpreadMin = 2;
+		UPROPERTY(editAnywhere,BlueprintReadWrite, Category = Crosshair)
+		float CrosshairSpreadMax = 6;
 
 };

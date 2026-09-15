@@ -11,6 +11,9 @@
 #include"Camera/CameraComponent.h"
 #include"PlayerAnim.h"
 #include "NiagaraFunctionLibrary.h"
+#include "NiagaraDataInterfaceArrayFunctionLibrary.h"
+#include "NiagaraComponent.h"
+#include "Components/DecalComponent.h"
 
 
 UPlayerFire::UPlayerFire()
@@ -80,6 +83,20 @@ void UPlayerFire::SniperAim(const FInputActionValue& inputValue)
 	}
 }
 
+FVector UPlayerFire::GetMuzzleFlashLocation() const
+{
+	USkeletalMeshComponent* CurrentGun = bUsingSniperGun
+		? sniperGunComp
+		: gunMeshComp;
+
+	if (CurrentGun)
+	{
+		return CurrentGun->GetSocketLocation(TEXT("MuzzleFlash"));
+	}
+
+	return FVector::ZeroVector;
+}
+
 
 
 void UPlayerFire::InputFire(const FInputActionValue& inputValue)
@@ -114,8 +131,39 @@ void UPlayerFire::InputFire(const FInputActionValue& inputValue)
 		// Channel 필터를 이용한 LineTrace 충돌 검출(충돌 정보, 시작 위치, 종료 위치, 검출 채널, 충돌 옵션)
 		bool bHit = GetWorld()->LineTraceSingleByChannel(hitInfo, startPos, endPos, ECC_GameTraceChannel1, params);
 		// LineTrace가 부딪혔을 때
+		// 탄흔 흔적 데칼 
+		UDecalComponent* Decal = UGameplayStatics::SpawnDecalAtLocation(GetWorld(),
+			BulletDecalMaterial,	// 데칼 머티리얼 자체를 변수로
+			DecalSize,	// 사이즈는 원하는 데칼 크기
+			hitInfo.ImpactPoint,
+			hitInfo.ImpactNormal.Rotation(),
+			DecalLifetime);	// 탄흔이 몇초동안 유지되어야 하는지
+
+		Decal->SetFadeScreenSize(0); // 화면 크기에 따른 페이드 설정
+
 		if (bHit)
 		{
+			if (BeamParticles)
+			{
+				UNiagaraComponent* NiagaraComp = UNiagaraFunctionLibrary::SpawnSystemAtLocation(
+					GetWorld(),
+					BeamParticles,  // UNiagaraSystem* 타입
+					GetMuzzleFlashLocation(),
+					FRotator::ZeroRotator,
+					FVector(1.0f, 1.0f, 1.0f),  // Scale
+					true,  // AutoDestroy
+					true,  // AutoActivate
+					ENCPoolMethod::AutoRelease  // Pooling 방식
+				);
+
+				UNiagaraDataInterfaceArrayFunctionLibrary::SetNiagaraArrayVector(
+					NiagaraComp,
+					FName("ImpactPositions"),  // Niagara 변수 이름
+					TArray<FVector>({ hitInfo.ImpactPoint })  // ImpactPoint를 포함하는 배열
+				);
+
+				NiagaraComp->SetVariableBool(FName(TEXT("Trigger")), true);
+			}
 			// 충돌 처리 -> 총알 파편 효과 재생
 			FTransform bulletTrans;
 			// 부딪힌 위치 할당

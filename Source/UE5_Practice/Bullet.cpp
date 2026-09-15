@@ -4,6 +4,7 @@
 #include "Bullet.h"
 #include "Components/SphereComponent.h"
 #include "GameFramework/ProjectileMovementComponent.h"
+#include "Enemy/EnemyFSM.h"
 
 // Sets default values
 ABullet::ABullet()
@@ -45,6 +46,10 @@ ABullet::ABullet()
 
 	// 생명 시간 주기
 	//InitialLifeSpan = 2.0f;
+
+	collisionComp->OnComponentHit.AddDynamic(this, &ABullet::OnBulletHit);
+
+	movementComp->bShouldBounce = false;
 }
 
 // Called when the game starts or when spawned
@@ -82,5 +87,25 @@ void ABullet::PostEditChangeProperty(FPropertyChangedEvent& PropertyChangedEvent
 		movementComp->InitialSpeed = speed;
 		movementComp->MaxSpeed = speed;
 	}
+}
+
+void ABullet::OnBulletHit(UPrimitiveComponent* HitComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, FVector NormalImpulse, const FHitResult& Hit)
+{
+	if (OtherActor == nullptr)
+	{
+		return;
+	}
+
+	// 맞은 액터에 UEnemyFSM 컴포넌트가 있을 때만 피해 처리
+	UEnemyFSM* enemyFSM = OtherActor->FindComponentByClass<UEnemyFSM>();
+
+	if (enemyFSM)
+	{
+		enemyFSM->OnDamageProcess();
+	}
+
+	// 적·벽 무엇을 맞든 총알 제거
+	Destroy();
+
 }
 
