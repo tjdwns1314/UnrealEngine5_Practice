@@ -43,6 +43,7 @@ public :
 	// 액터의 특정 속성을 수정하면 호출되는 이벤트 함수
 	virtual void PostEditChangeProperty(FPropertyChangedEvent& PropertyChangedEvent) override;
 
+	// 다이내믹 델리게이트에 바인딩하기 때문에 
 	UFUNCTION()
 	void OnBulletHit(
 		UPrimitiveComponent* HitComponent,

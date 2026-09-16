@@ -19,8 +19,8 @@ public :
 	void NativeUpdateAnimation(float DeltaSeconds);
 	
 public :
-	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = PlayerAnim)
-	TObjectPtr<class ACharacter> Character;
+	//UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = PlayerAnim)
+	//TObjectPtr<class ACharacter> Character;
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = PlayerAnim)
 	TObjectPtr<class UCharacterMovementComponent> MovementComponent;
@@ -63,4 +63,10 @@ public :
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = PlayerAnim)
 	FTransform LeftHandTransform;
+
+	// 에임 오프셋값
+	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = PlayerAnim)
+	float AO_Yaw = 0;
+	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = PlayerAnim)
+	float AO_Pitch = 0;
 };

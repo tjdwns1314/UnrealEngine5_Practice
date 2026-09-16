@@ -92,4 +92,11 @@ public:
 		UPROPERTY(editAnywhere,BlueprintReadWrite, Category = Crosshair)
 		float CrosshairSpreadMax = 6;
 
+
+		// 에임오프셋 관련 코드
+		float AO_StartYaw = 0;
+		float AO_Yaw = 0;
+		float AO_Pitch = 0;
+		void UpdateAimOffset(float DeltaTime);
+
 };

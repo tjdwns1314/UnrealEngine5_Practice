@@ -13,47 +13,59 @@ void UPlayerAnim::NativeInitializeAnimation()
 	Super::NativeInitializeAnimation();
 
 	// 초기화 될때 캐싱해두기
-	Character = Cast<ACharacter>(TryGetPawnOwner());
-
+	//Character = Cast<ACharacter>(TryGetPawnOwner());
+	tpsPlayer = Cast<ATPSPlayer>(TryGetPawnOwner());
 	MovementComponent = nullptr;
 	playerFire = nullptr;
 	playerMove = nullptr;
 
-	if (Character != nullptr)
+	if (tpsPlayer != nullptr)
 	{
-		MovementComponent = Character->GetCharacterMovement();
-		playerFire = Character->FindComponentByClass<UPlayerFire>();
-		playerMove = Character->FindComponentByClass<UPlayerMove>();
+		MovementComponent = tpsPlayer->GetCharacterMovement();
+		playerFire = tpsPlayer->FindComponentByClass<UPlayerFire>();
+		playerMove = tpsPlayer->FindComponentByClass<UPlayerMove>();
 	}
-	tpsPlayer = Cast<ATPSPlayer>(TryGetPawnOwner());
+
 }
 
 void UPlayerAnim::NativeUpdateAnimation(float DeltaSeconds)
 {
 	Super::NativeUpdateAnimation(DeltaSeconds);
 
-	
-
-	if (!playerFire && Character)
+	if (!IsValid(tpsPlayer))
 	{
-		playerFire = Character->FindComponentByClass<UPlayerFire>();
+		tpsPlayer = Cast<ATPSPlayer>(TryGetPawnOwner());
+	}
+	if (!IsValid(tpsPlayer))
+	{
+		AO_Yaw = 0.0f;
+		AO_Pitch = 0.0f;
+		return;
 	}
 
-	if (!playerMove && Character)
+	AO_Yaw = tpsPlayer->AO_Yaw;
+	AO_Pitch = tpsPlayer->AO_Pitch;
+
+	if (!playerFire && tpsPlayer)
 	{
-		playerMove = Character->FindComponentByClass<UPlayerMove>();
+		playerFire = tpsPlayer->FindComponentByClass<UPlayerFire>();
 	}
 
-	if (Character && MovementComponent)
+	if (!playerMove && tpsPlayer)
+	{
+		playerMove = tpsPlayer->FindComponentByClass<UPlayerMove>();
+	}
+
+	if (tpsPlayer && MovementComponent)
 	{
 		// 속도 계산
-		Velocity = Character->GetVelocity();
+		Velocity = tpsPlayer->GetVelocity();
 		GroundSpeed = Velocity.Length();
 		bShouldMove = (MovementComponent->GetCurrentAcceleration().Size() > 0) && (GroundSpeed >= 0.01f);
 		bIsFalling = MovementComponent->IsFalling();
 
 		// 방향 계산
-		Direction = CalculateDirection(Velocity, Character->GetActorRotation());
+		Direction = CalculateDirection(Velocity, tpsPlayer->GetActorRotation());
 	}
 	if (playerFire && playerMove)   // null 체크도 추가 권장
 	{
@@ -71,13 +83,14 @@ void UPlayerAnim::NativeUpdateAnimation(float DeltaSeconds)
 
 		FVector OutPosition;
 		FRotator OutRotator;
-		Character->GetMesh()->TransformToBoneSpace(FName("hand_r"),
+		tpsPlayer->GetMesh()->TransformToBoneSpace(FName("hand_r"),
 			LeftHandWorldTransform.GetLocation(), FRotator::ZeroRotator, OutPosition, OutRotator);
 
 		// hand_r 공간으로 변환한 좌표를 animation 좌표로 설정한다.
 		LeftHandTransform.SetLocation(OutPosition);
 		LeftHandTransform.SetRotation(FQuat(OutRotator));
 	}
+
 }
 
 void UPlayerAnim::PlayAttackAnim()

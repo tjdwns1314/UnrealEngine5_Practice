@@ -103,6 +103,7 @@ void ABullet::OnBulletHit(UPrimitiveComponent* HitComponent, AActor* OtherActor,
 	{
 		enemyFSM->OnDamageProcess();
 	}
+	// Hit에서 임팩트 정보 가져와서 쓸 수 있다. 
 
 	// 적·벽 무엇을 맞든 총알 제거
 	Destroy();
