@@ -67,13 +67,13 @@ public:
 	UPROPERTY(EditDefaultsOnly, Category ="Input")
 	class UInputMappingContext* imc_TPS;
 
-	// 총 스켈레탈 메시
-	UPROPERTY(VisibleAnywhere, Category = GunMesh)
-	class USkeletalMeshComponent* gunMeshComp;
+	//// 총 스켈레탈 메시
+	//UPROPERTY(VisibleAnywhere, Category = GunMesh)
+	//class USkeletalMeshComponent* gunMeshComp;
 
-	// 스나이퍼건 스태틱 메시 추가
-	UPROPERTY(VisibleAnywhere, Category = GunMesh)
-	class USkeletalMeshComponent* sniperGunComp;
+	//// 스나이퍼건 스태틱 메시 추가
+	//UPROPERTY(VisibleAnywhere, Category = GunMesh)
+	//class USkeletalMeshComponent* sniperGunComp;
 
 
 

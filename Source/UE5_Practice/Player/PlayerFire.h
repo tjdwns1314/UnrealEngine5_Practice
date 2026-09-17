@@ -28,8 +28,8 @@ public:
 	virtual void SetupInputBinding(class UEnhancedInputComponent* PlayerInput) override;
 
 
-	// --- 발사 ---
-	// 총알 발사 처리함수
+	//// --- 발사 ---
+	//// 총알 발사 처리함수
 	void InputFire(const struct FInputActionValue& inputValue);
 
 
@@ -43,21 +43,23 @@ public:
 	// ==================== 변수 ====================
 
 	// --- 카메라 컴포넌트 ---
-	UPROPERTY(VisibleAnywhere, Category = Camera)
-	class USpringArmComponent* springArmComp;
+	//UPROPERTY(VisibleAnywhere, Category = Camera)
+	//class USpringArmComponent* springArmComp;
 
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Camera)
-	class UCameraComponent* tpsCamComp;
+	//UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Camera)
+	//class UCameraComponent* tpsCamComp;
 
 
 	// --- 무기 메시 ---
 	// 스나이퍼건 스태틱 메시 추가
-	UPROPERTY(VisibleAnywhere, Category = GunMesh)
-	class USkeletalMeshComponent* sniperGunComp;
+	//UPROPERTY(VisibleAnywhere, Category = GunMesh)
+	//class USkeletalMeshComponent* sniperGunComp;
 
-	// 총 스켈레탈 메시
-	UPROPERTY(VisibleAnywhere, Category = GunMesh)
-	class USkeletalMeshComponent* gunMeshComp;
+	//// 총 스켈레탈 메시
+	//UPROPERTY(VisibleAnywhere, Category = GunMesh)
+	//class USkeletalMeshComponent* gunMeshComp;
+
+	
 
 
 	// --- 입력 액션 ---
@@ -72,16 +74,16 @@ public:
 
 
 	// --- 총알 생성 ---
-	//총알 공장
-	UPROPERTY(EditDefaultsOnly, Category = BulletFactory)
-	TSubclassOf<class ABullet> bulletFactory;
+	////총알 공장
+	//UPROPERTY(EditDefaultsOnly, Category = BulletFactory)
+	//TSubclassOf<class ABullet> bulletFactory;
 
 
-	// --- 무기 및 조준 상태 ---
-	bool bUsingSniperGun = false;
+	//// --- 무기 및 조준 상태 ---
+	//bool bUsingSniperGun = false;
 
-	// 스나이퍼 조준 중인지 여부
-	bool bSniperAim = false;
+	//// 스나이퍼 조준 중인지 여부
+	//bool bSniperAim = false;
 
 
 	// --- 스나이퍼 UI ---
@@ -92,46 +94,71 @@ public:
 	class UUserWidget* _sniperUI;
 
 
-	// --- 발사 효과 및 사운드 ---
-	// 총알 파편 효과 공장
-	UPROPERTY(EditAnywhere, Category = BulletEffect)
-	class UNiagaraSystem* bulletEffectFactory;
+	//// --- 발사 효과 및 사운드 ---
+	//// 총알 파편 효과 공장
+	//UPROPERTY(EditAnywhere, Category = BulletEffect)
+	//class UNiagaraSystem* bulletEffectFactory;
 
-	UPROPERTY(EditDefaultsOnly, Category = CameraMotion)
-	TSubclassOf<class UCameraShakeBase> cameraShake;
+	//UPROPERTY(EditDefaultsOnly, Category = CameraMotion)
+	//TSubclassOf<class UCameraShakeBase> cameraShake;
 
-	//총알 발사 사운드
-	UPROPERTY(EditDefaultsOnly, Category = Sound)
-	class USoundBase* bulletSound;
+	////총알 발사 사운드
+	//UPROPERTY(EditDefaultsOnly, Category = Sound)
+	//class USoundBase* bulletSound;
+
+	// 현재 총
+	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = Shooting)
+	class AWeapon* currentWeapon;
+
+	// 다른 갖고 있는 총
+	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = Shooting)
+	class AWeapon* anotherWeapon;
+
+	// 임시로 갖고 있을 총 자리
+	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = Shooting)
+	class AWeapon* tempWeapon;
+
+	// 시작 총
+	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = Shooting)
+	TSubclassOf <AWeapon> startingWeapon;
+
+	// 시작 권총
+	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = Shooting)
+	TSubclassOf <AWeapon> startingPistolWeapon;
+
+	// 현재 총이 주무기인지?
+	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = Shooting)
+	bool isPrimary;
+
 
 
 	// --- 발사 및 달리기 상태 ---
 	// 개선해볼것 - 총 발사 관련 
 	// 총을 쐈는지
-	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = Shooting)
-	bool BShooting = false;
+	//UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = Shooting)
+	//bool BShooting = false;
 
-	// 달리고 있는지
-	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = Shooting)
-	bool BRunning = false;
+	//// 달리고 있는지
+	//UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = Shooting)
+	//bool BRunning = false;
 
-	// 앞으로 총을 두는 상태가 필요한지 체크 
-	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = Shooting)
-	bool BIsRunShooting = false;
+	//// 앞으로 총을 두는 상태가 필요한지 체크 
+	//UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = Shooting)
+	//bool BIsRunShooting = false;
 
 
 	// --- 상태 전환 타이머 ---
 	// 총 쏘고 전환시간
-	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = Shooting)
-	float TransitionTime = 5.0f;
+	//UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = Shooting)
+	//float TransitionTime = 5.0f;
 
-	// 타이머 핸들 선언
-	FTimerHandle ThisHandle;
+	//// 타이머 핸들 선언
+	//FTimerHandle ThisHandle;
 
-	// 타이머 델리게이트 선언
-	FTimerDelegate ThisDelegate;
+	//// 타이머 델리게이트 선언
+	//FTimerDelegate ThisDelegate;
 
-	UPROPERTY(EditDefaultsOnly, Category = "MyGame")
+	/*UPROPERTY(EditDefaultsOnly, Category = "MyGame")
 	TObjectPtr<class UMaterialInterface> BulletDecalMaterial;
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = Shooting)
@@ -139,7 +166,7 @@ public:
 	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = Shooting)
 	float DecalLifetime = 2;
 	UPROPERTY(EditDefaultsOnly)
-	TObjectPtr<class UNiagaraSystem> BeamParticles;
+	TObjectPtr<class UNiagaraSystem> BeamParticles;*/
 
-	FVector GetMuzzleFlashLocation() const;
+	//FVector GetMuzzleFlashLocation() const;
 };

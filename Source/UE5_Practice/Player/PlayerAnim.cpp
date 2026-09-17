@@ -6,6 +6,7 @@
 #include "PlayerFIre.h"
 #include "GameFramework/CharacterMovementComponent.h"
 #include "PlayerMove.h"
+#include "Weapon.h"
 
 
 void UPlayerAnim::NativeInitializeAnimation()
@@ -67,20 +68,19 @@ void UPlayerAnim::NativeUpdateAnimation(float DeltaSeconds)
 		// 방향 계산
 		Direction = CalculateDirection(Velocity, tpsPlayer->GetActorRotation());
 	}
-	if (playerFire && playerMove)   // null 체크도 추가 권장
+	if (playerFire&&playerFire->currentWeapon && playerMove)   // null 체크도 추가 권장
 	{
-		BIsRunShooting = playerFire->BShooting && playerMove->BRunning;
+		BIsRunShooting = playerFire->currentWeapon->BShooting && playerMove->BRunning;
 	}
 	else
 	{
 		BIsRunShooting = false;
 	}
 	// 왼손이 있어야할 위치를 소켓정보를 통해 갱신한다.
-	if (tpsPlayer && tpsPlayer->gunMeshComp)
+	if (tpsPlayer && playerFire && playerFire->currentWeapon)
 	{
 		// 무기의 LeftHandSocket 위치를 월드 좌표로 가져온다.
-		FTransform LeftHandWorldTransform = tpsPlayer->gunMeshComp->GetSocketTransform(FName("LeftHandSocket"), ERelativeTransformSpace::RTS_World);
-
+		FTransform LeftHandWorldTransform = GetLeftHand();
 		FVector OutPosition;
 		FRotator OutRotator;
 		tpsPlayer->GetMesh()->TransformToBoneSpace(FName("hand_r"),
@@ -93,7 +93,16 @@ void UPlayerAnim::NativeUpdateAnimation(float DeltaSeconds)
 
 }
 
-void UPlayerAnim::PlayAttackAnim()
+void UPlayerAnim::PlayAttackAnim(UAnimMontage* animMontage)
 {
-	Montage_Play(attackAnimMontage);
+	Montage_Play(animMontage);
+}
+
+FTransform UPlayerAnim::GetLeftHand()
+{
+	if (playerFire)
+	{
+		return playerFire->currentWeapon->gunMeshComp->GetSocketTransform(FName("LeftHandSocket"), ERelativeTransformSpace::RTS_World);
+	}
+	return FTransform();
 }

@@ -40,14 +40,12 @@ public :
 	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = PlayerAnim)
 	bool bIsFalling = false;
 
-	// 재생할 공격 애니메이션 몽타주
-	UPROPERTY(EditDefaultsOnly,Category=PlayerAnim)
-	class UAnimMontage* attackAnimMontage;
+	//// 재생할 공격 애니메이션 몽타주
+	//UPROPERTY(EditDefaultsOnly,Category=PlayerAnim)
+	//class UAnimMontage* attackAnimMontage;
 
 	// 공격 애니메이션 재생 함수
-	void PlayAttackAnim();
-
-
+	void PlayAttackAnim(UAnimMontage* animMontage);
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = PlayerAnim)
 	bool BIsRunShooting = false;
@@ -69,4 +67,7 @@ public :
 	float AO_Yaw = 0;
 	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = PlayerAnim)
 	float AO_Pitch = 0;
+
+	UFUNCTION()
+	FTransform GetLeftHand();
 };

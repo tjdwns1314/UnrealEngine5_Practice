@@ -45,36 +45,36 @@ ATPSPlayer::ATPSPlayer()
 
 	JumpMaxCount = 2;
 
-	// 4. 총 스켈레탈 메시 컴포넌트 등록
-	gunMeshComp = CreateDefaultSubobject<USkeletalMeshComponent>(TEXT("GunMeshComp"));
-	// 4-1 부모 컴포넌트를 Mesh 컴포넌트로 설정
-	gunMeshComp->SetupAttachment(GetMesh(), TEXT("hand_rSocket"));
-	// 4-2. 스켈레탈 메시 데이터 로드
-	ConstructorHelpers::FObjectFinder<USkeletalMesh> TempGunMesh(TEXT("SkeletalMesh'/Game/Assets/MilitaryWeapSilver/Weapons/Assault_Rifle_A.Assault_Rifle_A'"));
-	// 4-3. 데이터 로드가 성공했다면
-	if (TempGunMesh.Succeeded())
-	{
-		// 4-4. 스켈레탈 메시 데이터 할당
-		gunMeshComp->SetSkeletalMesh(TempGunMesh.Object);
-		// 4-5 위치 조정하기
-		//gunMeshComp->SetRelativeLocation(FVector(-14, 11, 138));	
-	}
+	//// 4. 총 스켈레탈 메시 컴포넌트 등록
+	//gunMeshComp = CreateDefaultSubobject<USkeletalMeshComponent>(TEXT("GunMeshComp"));
+	//// 4-1 부모 컴포넌트를 Mesh 컴포넌트로 설정
+	//gunMeshComp->SetupAttachment(GetMesh(), TEXT("hand_rSocket"));
+	//// 4-2. 스켈레탈 메시 데이터 로드
+	//ConstructorHelpers::FObjectFinder<USkeletalMesh> TempGunMesh(TEXT("SkeletalMesh'/Game/Assets/MilitaryWeapSilver/Weapons/Assault_Rifle_A.Assault_Rifle_A'"));
+	//// 4-3. 데이터 로드가 성공했다면
+	//if (TempGunMesh.Succeeded())
+	//{
+	//	// 4-4. 스켈레탈 메시 데이터 할당
+	//	gunMeshComp->SetSkeletalMesh(TempGunMesh.Object);
+	//	// 4-5 위치 조정하기
+	//	//gunMeshComp->SetRelativeLocation(FVector(-14, 11, 138));	
+	//}
 
-	// 5.스나이퍼건 컴포넌트 등록
-	sniperGunComp = CreateDefaultSubobject<USkeletalMeshComponent>(TEXT("SniperGunComp"));
-	// 5-1 부모 컴포넌트를 Mesh 컴포넌트로 설정
-	sniperGunComp->SetupAttachment(GetMesh(), TEXT("hand_rSocket"));
-	// 5-2 스태틱 메시 데이터 로드
-	ConstructorHelpers::FObjectFinder<USkeletalMesh> TempSniperMesh(TEXT("SkeletalMesh'/Game/Assets/MilitaryWeapSilver/Weapons/Sniper_Rifle_A.Sniper_Rifle_A'"));
+	//// 5.스나이퍼건 컴포넌트 등록
+	//sniperGunComp = CreateDefaultSubobject<USkeletalMeshComponent>(TEXT("SniperGunComp"));
+	//// 5-1 부모 컴포넌트를 Mesh 컴포넌트로 설정
+	//sniperGunComp->SetupAttachment(GetMesh(), TEXT("hand_rSocket"));
+	//// 5-2 스태틱 메시 데이터 로드
+	//ConstructorHelpers::FObjectFinder<USkeletalMesh> TempSniperMesh(TEXT("SkeletalMesh'/Game/Assets/MilitaryWeapSilver/Weapons/Sniper_Rifle_A.Sniper_Rifle_A'"));
 
-	// 5-3 데이터 로드가 성공했다면
-	if (TempSniperMesh.Succeeded())
-	{
-		// 5-4. 스태틱 메시 데이터 할당
-		sniperGunComp->SetSkeletalMesh(TempSniperMesh.Object);
-		// 5-5 위치 조정하기
-		//sniperGunComp->SetRelativeLocation(FVector(-22, 31, 128));
-	}
+	//// 5-3 데이터 로드가 성공했다면
+	//if (TempSniperMesh.Succeeded())
+	//{
+	//	// 5-4. 스태틱 메시 데이터 할당
+	//	sniperGunComp->SetSkeletalMesh(TempSniperMesh.Object);
+	//	// 5-5 위치 조정하기
+	//	//sniperGunComp->SetRelativeLocation(FVector(-22, 31, 128));
+	//}
 
 	playerMove = CreateDefaultSubobject<UPlayerMove>(TEXT("PlayerMove"));
 	//playerFire = CreateDefaultSubobject<UPlayerFire>(TEXT("PlayerFire"));
@@ -95,8 +95,8 @@ void ATPSPlayer::BeginPlay()
 		}
 	}
 
-	gunMeshComp->SetVisibility(true);
-	sniperGunComp->SetVisibility(false);
+	//gunMeshComp->SetVisibility(true);
+	//sniperGunComp->SetVisibility(false);
 
 	hp = initialHp;
 }

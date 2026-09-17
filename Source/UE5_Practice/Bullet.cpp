@@ -56,14 +56,9 @@ ABullet::ABullet()
 void ABullet::BeginPlay()
 {
 	Super::BeginPlay();
-	
+	SetLifeSpan(2.0f);
 	FTimerHandle deathTimer;
 	//GetWorld()->GetTimerManager().SetTimer(deathTimer, this, &ABullet::Die, 2.0f, false);
-
-	GetWorld()->GetTimerManager().SetTimer(deathTimer, FTimerDelegate::CreateLambda([this]()->void
-		{
-			Destroy();
-		}), 2.0f, false);
 }
 
 // Called every frame
@@ -73,10 +68,10 @@ void ABullet::Tick(float DeltaTime)
 
 }
 
-void ABullet::Die()
-{
-	Destroy();
-}
+//void ABullet::Die()
+//{
+//	Destroy();
+//}
 
 void ABullet::PostEditChangeProperty(FPropertyChangedEvent& PropertyChangedEvent)
 {
