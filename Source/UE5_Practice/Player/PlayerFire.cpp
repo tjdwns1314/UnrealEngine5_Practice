@@ -16,6 +16,11 @@
 #include "Components/DecalComponent.h"
 #include "Weapon.h"
 #include "Engine/SkeletalMeshSocket.h"
+#include "System/MyDataSubsystem.h"
+#include "GameplayTagContainer.h"
+#include "System/MyGameplayTags.h"
+//#include "System/MyGameInstance.h"
+//#include"System/MyInputDataAsset.h"
 
 
 UPlayerFire::UPlayerFire()
@@ -49,14 +54,18 @@ void UPlayerFire::BeginPlay()
 		HandSocket->AttachActor(anotherWeapon, me->GetMesh());
 	}
 	anotherWeapon->SetActorHiddenInGame(true);
+
 }
 
 void UPlayerFire::SetupInputBinding(UEnhancedInputComponent* PlayerInput)
 {
-	PlayerInput->BindAction(ia_Fire, ETriggerEvent::Started, this, &UPlayerFire::InputFire);
-	PlayerInput->BindAction(ia_ChangeGun, ETriggerEvent::Started, this, &UPlayerFire::ChangeGun);
-	PlayerInput->BindAction(ia_SniperAim, ETriggerEvent::Started, this, &UPlayerFire::SniperAim);
-	PlayerInput->BindAction(ia_SniperAim, ETriggerEvent::Completed, this, &UPlayerFire::SniperAim);
+	UMyDataSubsystem* DataSubsystem = GetWorld()->GetGameInstance()->GetSubsystem< UMyDataSubsystem>();
+	if (DataSubsystem == nullptr)
+		return;
+	PlayerInput->BindAction(DataSubsystem->FindInputActionByTag(MyGameplayTags::Input_Action_Fire), ETriggerEvent::Started, this, &UPlayerFire::InputFire);
+	PlayerInput->BindAction(DataSubsystem->FindInputActionByTag(MyGameplayTags::Input_Action_ChangeWeapon), ETriggerEvent::Started, this, &UPlayerFire::ChangeGun);
+	PlayerInput->BindAction(DataSubsystem->FindInputActionByTag(MyGameplayTags::Input_Action_SniperAim), ETriggerEvent::Started, this, &UPlayerFire::SniperAim);
+	PlayerInput->BindAction(DataSubsystem->FindInputActionByTag(MyGameplayTags::Input_Action_SniperAim), ETriggerEvent::Completed, this, &UPlayerFire::SniperAim);
 }
 
 //void UPlayerFire::ChangeGun()

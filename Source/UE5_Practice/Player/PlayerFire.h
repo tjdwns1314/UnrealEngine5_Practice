@@ -63,14 +63,16 @@ public:
 
 
 	// --- 입력 액션 ---
-	UPROPERTY(EditDefaultsOnly, Category = "Input")
-	class UInputAction* ia_Fire;
+	//UPROPERTY(EditDefaultsOnly, Category = "Input")
+	//class UInputAction* ia_Fire;
 
-	UPROPERTY(EditDefaultsOnly, Category = "Input")
-	class UInputAction* ia_ChangeGun;
+	//UPROPERTY(EditDefaultsOnly, Category = "Input")
+	//class UInputAction* ia_ChangeGun;
 
-	UPROPERTY(EditDefaultsOnly, Category = "Input")
-	class UInputAction* ia_SniperAim;
+	//UPROPERTY(EditDefaultsOnly, Category = "Input")
+	//class UInputAction* ia_SniperAim;
+
+
 
 
 	// --- 총알 생성 ---

@@ -4,15 +4,22 @@
 #include "PlayerMove.h"
 #include "EnhancedInputComponent.h"
 #include "InputActionValue.h"
+#include "System/MyDataSubsystem.h"
+#include "GameplayTagContainer.h"
+#include "System/MyGameplayTags.h"
 
 void UPlayerMove::SetupInputBinding(UEnhancedInputComponent* PlayerInput)
 {
-	PlayerInput->BindAction(ia_Turn, ETriggerEvent::Triggered, this, &UPlayerMove::Turn);
-	PlayerInput->BindAction(ia_LookUp, ETriggerEvent::Triggered, this, &UPlayerMove::LookUp);
-	PlayerInput->BindAction(ia_Move, ETriggerEvent::Triggered, this, &UPlayerMove::Move);
-	PlayerInput->BindAction(ia_Run, ETriggerEvent::Started, this, &UPlayerMove::RunStarted);
-	PlayerInput->BindAction(ia_Run, ETriggerEvent::Completed, this, &UPlayerMove::RunCompleted);
-	PlayerInput->BindAction(ia_Jump, ETriggerEvent::Started, this, &UPlayerMove::InputJump);
+	UMyDataSubsystem* DataSubsystem = GetWorld()->GetGameInstance()->GetSubsystem< UMyDataSubsystem>();
+	if (DataSubsystem == nullptr)
+		return;
+	//DataSubsystem->FindInputActionByTag(MyGameplayTags::Input_Action_Turn)
+	PlayerInput->BindAction(DataSubsystem->FindInputActionByTag(MyGameplayTags::Input_Action_Turn), ETriggerEvent::Triggered, this, &UPlayerMove::Turn);
+	PlayerInput->BindAction(DataSubsystem->FindInputActionByTag(MyGameplayTags::Input_Action_Look), ETriggerEvent::Triggered, this, &UPlayerMove::LookUp);
+	PlayerInput->BindAction(DataSubsystem->FindInputActionByTag(MyGameplayTags::Input_Action_Move), ETriggerEvent::Triggered, this, &UPlayerMove::Move);
+	PlayerInput->BindAction(DataSubsystem->FindInputActionByTag(MyGameplayTags::Input_Action_Run), ETriggerEvent::Started, this, &UPlayerMove::RunStarted);
+	PlayerInput->BindAction(DataSubsystem->FindInputActionByTag(MyGameplayTags::Input_Action_Run), ETriggerEvent::Completed, this, &UPlayerMove::RunCompleted);
+	PlayerInput->BindAction(DataSubsystem->FindInputActionByTag(MyGameplayTags::Input_Action_Jump), ETriggerEvent::Started, this, &UPlayerMove::InputJump);
 }
 
 void UPlayerMove::Move(const FInputActionValue& inputValue)

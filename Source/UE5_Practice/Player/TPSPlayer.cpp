@@ -11,6 +11,9 @@
 #include "UE5_Practice.h"
 #include <Kismet/GameplayStatics.h>
 #include "MyHUD.h"
+#include "System/MyGameInstance.h"
+#include "System/MyInputDataAsset.h"
+#include "System/MyDataConfigAsset.h"
 
 
 
@@ -89,9 +92,16 @@ void ATPSPlayer::BeginPlay()
 	if (pc)
 	{
 		auto subsystem = ULocalPlayer::GetSubsystem<UEnhancedInputLocalPlayerSubsystem>(pc->GetLocalPlayer());
-		if (subsystem)
+		//if (subsystem)
+		//{
+		//	subsystem->AddMappingContext(imc_TPS, 0);
+		//}
+		UDataAsset* InputData = Cast<UMyGameInstance>(GetGameInstance())->DataConfig->DA_Input;
+		UMyInputDataAsset* DA_Input = Cast<UMyInputDataAsset>(InputData);
+
+		if (DA_Input)
 		{
-			subsystem->AddMappingContext(imc_TPS, 0);
+			subsystem->AddMappingContext(DA_Input->IMC_TPS, 0);
 		}
 	}
 
@@ -143,6 +153,11 @@ void ATPSPlayer::OnHitEvent()
 
 void ATPSPlayer::UpdateAimOffset(float DeltaTime)
 {
+	AController* CurrentController = GetController();
+	if (!CurrentController)
+	{
+		return;
+	}
 	FVector Velocity = GetVelocity();
 	float Speed = Velocity.Size2D();  // 높이에 대한 속도는 무시하고, 수평속도만 계산
 	bool bIsInAir = GetCharacterMovement()->IsFalling();
