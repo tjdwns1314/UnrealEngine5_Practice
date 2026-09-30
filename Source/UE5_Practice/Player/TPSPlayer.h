@@ -99,4 +99,8 @@ public:
 		float AO_Pitch = 0;
 		void UpdateAimOffset(float DeltaTime);
 
+		// 카메라랑 캐릭터랑 충분히 가까우면, 메시 숨기는 거리
+		UPROPERTY(EditAnywhere, Category = "IHGame|Value")
+		float MeshVisibleDistance = 100;
+
 };

@@ -45,7 +45,6 @@ ATPSPlayer::ATPSPlayer()
 	tpsCamComp->bUsePawnControlRotation = false;
 
 	bUseControllerRotationYaw = true;
-
 	JumpMaxCount = 2;
 
 	//// 4. 총 스켈레탈 메시 컴포넌트 등록
@@ -115,8 +114,25 @@ void ATPSPlayer::BeginPlay()
 void ATPSPlayer::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
-	UpdateCrossHair();
-	UpdateAimOffset(DeltaTime);
+
+	//카메라 거리, 캐릭터 거리 비교
+	//거리값이 내가 원하는 거리보다 작다면 메시를 숨김 처리한다.
+	FVector DistVector = tpsCamComp->GetComponentLocation() - GetActorLocation();
+	double Dist = DistVector.Size();
+
+	if (Dist < MeshVisibleDistance && IsLocallyControlled())
+	{
+		GetMesh()->SetVisibility(false);
+	}
+	else
+	{
+		GetMesh()->SetVisibility(true);
+	}
+
+
+		UpdateAimOffset(DeltaTime);
+		UpdateCrossHair();
+
 }
 
 // Called to bind functionality to input
