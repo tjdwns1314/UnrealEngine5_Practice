@@ -10,6 +10,7 @@ DECLARE_MULTICAST_DELEGATE_OneParam(FInputBindingDelegate, class UEnhancedInputC
 
 class UPlayerMove;
 class UPlayerFire;
+struct FUS_CharacterStats;
 
 UCLASS()
 class UE5_PRACTICE_API ATPSPlayer : public ACharacter
@@ -76,6 +77,9 @@ public:
 	//class USkeletalMeshComponent* sniperGunComp;
 
 
+	FUS_CharacterStats* CharacterStats = nullptr;
+
+	FUS_CharacterStats* GetStats() { return CharacterStats; }
 
 	public:
 		UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Component)
@@ -102,5 +106,7 @@ public:
 		// 카메라랑 캐릭터랑 충분히 가까우면, 메시 숨기는 거리
 		UPROPERTY(EditAnywhere, Category = "IHGame|Value")
 		float MeshVisibleDistance = 100;
+
+
 
 };

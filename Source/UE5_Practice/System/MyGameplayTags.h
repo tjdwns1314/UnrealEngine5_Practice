@@ -15,5 +15,6 @@ namespace MyGameplayTags
 	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Input_Action_ChangeWeapon);
 	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Input_Action_SniperAim);
 	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Input_Action_Turn);
+	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Input_Action_Interact);
 
 }

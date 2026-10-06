@@ -5,8 +5,15 @@
 #include "EnhancedInputComponent.h"
 #include "InputActionValue.h"
 #include "System/MyDataSubsystem.h"
+#include "System/MyGameInstance.h"
+#include "System/MyDataConfigAsset.h"
+#include "System/MyCharacterStatDataAsset.h"
+#include "US_CharacterStats.h"
 #include "GameplayTagContainer.h"
 #include "System/MyGameplayTags.h"
+#include "Kismet/GameplayStatics.h"
+#include "InteractInterface.h"
+#include "UE5_Practice.h"
 
 void UPlayerMove::SetupInputBinding(UEnhancedInputComponent* PlayerInput)
 {
@@ -20,6 +27,7 @@ void UPlayerMove::SetupInputBinding(UEnhancedInputComponent* PlayerInput)
 	PlayerInput->BindAction(DataSubsystem->FindInputActionByTag(MyGameplayTags::Input_Action_Run), ETriggerEvent::Started, this, &UPlayerMove::RunStarted);
 	PlayerInput->BindAction(DataSubsystem->FindInputActionByTag(MyGameplayTags::Input_Action_Run), ETriggerEvent::Completed, this, &UPlayerMove::RunCompleted);
 	PlayerInput->BindAction(DataSubsystem->FindInputActionByTag(MyGameplayTags::Input_Action_Jump), ETriggerEvent::Started, this, &UPlayerMove::InputJump);
+	PlayerInput->BindAction(DataSubsystem->FindInputActionByTag(MyGameplayTags::Input_Action_Interact), ETriggerEvent::Started, this, &UPlayerMove::Interact);
 }
 
 void UPlayerMove::Move(const FInputActionValue& inputValue)
@@ -29,26 +37,54 @@ void UPlayerMove::Move(const FInputActionValue& inputValue)
 	direction.Y = value.Y;
 }
 
+//void UPlayerMove::PlayerMove()
+//{
+//	direction = FTransform(me->GetControlRotation()).TransformVector(direction);
+//	me->AddMovementInput(direction);
+//	direction = FVector::ZeroVector;
+//}
+
+
 void UPlayerMove::PlayerMove()
 {
-	direction = FTransform(me->GetControlRotation()).TransformVector(direction);
-	me->AddMovementInput(direction);
+	const FRotator YawRotation(
+		0.0f,
+		me->GetControlRotation().Yaw,
+		0.0f
+	);
+
+	const FVector MoveDirection = YawRotation.RotateVector(direction);
+	me->AddMovementInput(MoveDirection);
+
 	direction = FVector::ZeroVector;
+
 }
 
 
 UPlayerMove::UPlayerMove()
 {
 	//Tick 함수 호출되도록 처리
+	SetIsReplicatedByDefault(true);
 	PrimaryComponentTick.bCanEverTick = true;
 }
 
 void UPlayerMove::BeginPlay()
 {
 	Super::BeginPlay();
+	BRunning = false;
+	if (moveComp)
+		moveComp->MaxWalkSpeed = CurrentStats.WalkSpeed;
 	
+	//UMyGameInstance* GI = Cast<UMyGameInstance>(GetWorld()->GetGameInstance());
+	//StatDataAsset = (GI && GI->DataConfig)
+	//	? GI->DataConfig->DA_Stat.Get()
+	//	: nullptr;
+
 	// 초기 속도를 걷기로 설정
-	moveComp->MaxWalkSpeed = walkSpeed;
+	//moveComp->MaxWalkSpeed = walkSpeed;
+	//FUS_CharacterStats* Stats =
+	//	StatDataAsset ? StatDataAsset->GetCharacterStats() : nullptr;
+
 }
 
 void UPlayerMove::TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction * ThisTickFunction)
@@ -71,36 +107,126 @@ void UPlayerMove::LookUp(const FInputActionValue& inputValue)
 	me->AddControllerPitchInput(value);
 }
 
-void UPlayerMove::InputRun()
+//void UPlayerMove::InputRun()
+//{
+//	auto movement = me->GetCharacterMovement();
+//
+//	BRunning = !BRunning;
+//
+//	if (BRunning)
+//	{
+//		if (Stats)
+//		{
+//			moveComp->MaxWalkSpeed = Stats->SprintSpeed; // 달리기일 때
+//		}
+//		//movement->MaxWalkSpeed = runSpeed;
+//	}
+//	else
+//	{
+//		if (Stats)
+//		{
+//			moveComp->MaxWalkSpeed = Stats->WalkSpeed; // 달리기일 때
+//		}
+//		//movement->MaxWalkSpeed = walkSpeed;
+//		BIsRunShooting = false;
+//	}
+//}
+//void UPlayerMove::Interact()
+//{
+//	AActor* TargetActor = UGameplayStatics::GetActorOfClass(GetWorld(), InteractTargetClass);
+//
+//	if (UFunction* Function = TargetActor->FindFunction(TEXT("Interact")))
+//	{
+//		TargetActor->ProcessEvent(Function, nullptr);
+//	}
+//}
+
+void UPlayerMove::Interact()
 {
-	auto movement = me->GetCharacterMovement();
+	const FVector Start = me->GetPawnViewLocation();
+	const FVector End =
+		Start + me->GetControlRotation().Vector() * 300.0f;
 
-	BRunning = !BRunning;
+	FHitResult HitResult;
+	FCollisionQueryParams Params;
+	Params.AddIgnoredActor(me);
 
-	if (BRunning)
+	const bool bHit = GetWorld()->LineTraceSingleByChannel(
+		HitResult,
+		Start,
+		End,
+		ECC_Visibility,
+		Params
+	);
+
+	if (!bHit)
 	{
-		movement->MaxWalkSpeed = runSpeed;
+		return;
 	}
-	else
+
+	AActor* TargetActor = HitResult.GetActor();
+
+	if (IsValid(TargetActor) &&
+		TargetActor->Implements<UInteractInterface>())
 	{
-		movement->MaxWalkSpeed = walkSpeed;
-		BIsRunShooting = false;
+		IInteractInterface::Execute_Interact(TargetActor, me);
 	}
+	PrintLogWithRole(me, TEXT("F Interact"), FColor::Cyan, 1);
 }
+
+
+
 void UPlayerMove::RunStarted()
 {
 	BRunning = true;
-	me->GetCharacterMovement()->MaxWalkSpeed = runSpeed;
+	if (moveComp)
+	{
+		moveComp->MaxWalkSpeed = CurrentStats.SprintSpeed;
+	}
+	SprintStart_Server();
 }
 
 void UPlayerMove::RunCompleted()
 {
 	BRunning = false;
-	me->GetCharacterMovement()->MaxWalkSpeed = walkSpeed;
+	if (moveComp)
+	{
+		moveComp->MaxWalkSpeed = CurrentStats.WalkSpeed;
+	}
+	SprintEnd_Server();
+
 }
 
 void UPlayerMove::InputJump(const FInputActionValue& inputValue)
 {
 	me->Jump();
 }
+
+void UPlayerMove::SetCharacterStats(const FUS_CharacterStats& NewStats)
+{
+	CurrentStats = NewStats;
+	UE_LOG(LogTemp, Warning, TEXT("전달받은 스탯: Walk=%.1f Sprint=%.1f"),
+		CurrentStats.WalkSpeed, CurrentStats.SprintSpeed);
+	if (moveComp)
+	{
+		moveComp->MaxWalkSpeed =
+			BRunning ? CurrentStats.SprintSpeed : CurrentStats.WalkSpeed;
+	}
+}
+
+void UPlayerMove::SprintStart_Server_Implementation()
+{
+	if (moveComp)
+	{
+		moveComp->MaxWalkSpeed = CurrentStats.SprintSpeed;
+	}
+}
+void UPlayerMove::SprintEnd_Server_Implementation()
+{
+	if (moveComp)
+	{
+		moveComp->MaxWalkSpeed = CurrentStats.WalkSpeed;
+	}
+}
+
 

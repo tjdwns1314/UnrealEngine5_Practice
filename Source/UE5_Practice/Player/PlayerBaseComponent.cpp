@@ -28,6 +28,17 @@ void UPlayerBaseComponent::InitializeComponent()
 void UPlayerBaseComponent::BeginPlay()
 {
 	Super::BeginPlay();
+
+
+	// BeginPlay 시점에 확실하게 Owner와 MovementComponent를 한 번 더 가져옵니다.
+	if (!me)
+	{
+		me = Cast<ATPSPlayer>(GetOwner());
+	}
+	if (me && !moveComp)
+	{
+		moveComp = me->GetCharacterMovement();
+	}
 }
 
 

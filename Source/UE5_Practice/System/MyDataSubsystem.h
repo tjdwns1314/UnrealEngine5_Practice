@@ -5,6 +5,7 @@
 #include "CoreMinimal.h"
 #include "Subsystems/GameInstanceSubsystem.h"
 #include "GameplayTagContainer.h"
+#include "US_CharacterStats.h"
 #include "MyDataSubsystem.generated.h"
 
 class UInputAction;
@@ -19,4 +20,5 @@ class UE5_PRACTICE_API UMyDataSubsystem : public UGameInstanceSubsystem
 
 public :
 	const UInputAction* FindInputActionByTag(const FGameplayTag& InputTag) const;
+	FUS_CharacterStats* ReturnUpdatedCharacterStats(int32 CharacterLevel);
 };

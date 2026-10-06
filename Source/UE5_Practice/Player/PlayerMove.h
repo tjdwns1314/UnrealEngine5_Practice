@@ -4,6 +4,7 @@
 
 #include "CoreMinimal.h"
 #include "PlayerBaseComponent.h"
+#include "US_CharacterStats.h"
 #include "PlayerMove.generated.h"
 
 /**
@@ -19,6 +20,9 @@ public:
 
 	// --- 생성 및 생명주기 ---
 	UPlayerMove();
+
+	UPROPERTY(EditDefaultsOnly, Category = "Interact")
+	TSubclassOf<AActor> InteractTargetClass;
 
 	virtual void BeginPlay() override;
 
@@ -45,6 +49,13 @@ public:
 	// 달리기 이벤트 처리함수
 	void InputRun();
 
+	void Interact();
+
+
+	//void SprintStart();
+	//void SprintEnd();
+
+
 	// 달리면서 총쏘는걸 위해 달리기 함수를 2개로 나눔
 	void RunStarted();
 	void RunCompleted();
@@ -54,6 +65,14 @@ public:
 
 
 public:
+
+
+	void SetCharacterStats(const FUS_CharacterStats& NewStats);
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Stats")
+	FUS_CharacterStats CurrentStats;
+
+
 	// ==================== 변수 ====================
 
 	// --- 시점 입력 액션 ---
@@ -74,15 +93,18 @@ public:
 	UPROPERTY(EditDefaultsOnly, Category = "Input")
 	class UInputAction* ia_Jump;
 
+	UPROPERTY(EditDefaultsOnly, Category = "Input")
+	class UInputAction* ia_Interact;
+
 
 	// --- 이동 방향 및 속도 ---
 	FVector direction;
 
-	UPROPERTY(EditAnywhere, Category = PlayerSetting)
-	float walkSpeed = 300;
+	//UPROPERTY(EditAnywhere, Category = PlayerSetting)
+	//float walkSpeed = 300;
 
-	UPROPERTY(EditAnywhere, Category = PlayerSetting)
-	float runSpeed = 600;
+	//UPROPERTY(EditAnywhere, Category = PlayerSetting)
+	//float runSpeed = 600;
 
 
 	// --- 발사 및 달리기 상태 ---
@@ -109,4 +131,12 @@ public:
 
 	// 타이머 델리게이트 선언
 	FTimerDelegate ThisDelegate;
+
+
+	protected:
+		UFUNCTION(Server, Reliable)
+		void SprintStart_Server();
+
+		UFUNCTION(Server, Reliable)
+		void SprintEnd_Server();
 };

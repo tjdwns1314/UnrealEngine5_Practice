@@ -14,6 +14,8 @@
 #include "System/MyGameInstance.h"
 #include "System/MyInputDataAsset.h"
 #include "System/MyDataConfigAsset.h"
+#include "US_CharacterStats.h"
+#include "System/MyDataSubsystem.h"
 
 
 
@@ -87,21 +89,48 @@ void ATPSPlayer::BeginPlay()
 {
 	Super::BeginPlay();
 
+	if (!IsValid(playerMove))
+	{
+		playerMove = FindComponentByClass<UPlayerMove>();
+	}
+
+
+	if (UGameInstance* GameInstance = GetGameInstance())
+	{
+		if (UMyDataSubsystem* DataSubsystem = GameInstance->GetSubsystem<UMyDataSubsystem>())
+		{
+			CharacterStats = DataSubsystem->ReturnUpdatedCharacterStats(1);
+
+
+			UE_LOG(LogTemp, Warning, TEXT("CharacterStats=%p, playerMove=%s"),
+				static_cast<void*>(CharacterStats),
+				*GetNameSafe(playerMove));
+
+			if (CharacterStats && playerMove)
+			{
+				playerMove->SetCharacterStats(*CharacterStats);
+			}
+		}
+	}
+
 	auto pc = Cast<APlayerController>(Controller);
 	if (pc)
 	{
 		auto subsystem = ULocalPlayer::GetSubsystem<UEnhancedInputLocalPlayerSubsystem>(pc->GetLocalPlayer());
+	
 		//if (subsystem)
 		//{
 		//	subsystem->AddMappingContext(imc_TPS, 0);
 		//}
+
 		UDataAsset* InputData = Cast<UMyGameInstance>(GetGameInstance())->DataConfig->DA_Input;
 		UMyInputDataAsset* DA_Input = Cast<UMyInputDataAsset>(InputData);
 
-		if (DA_Input)
+		if (DA_Input && subsystem)
 		{
 			subsystem->AddMappingContext(DA_Input->IMC_TPS, 0);
 		}
+
 	}
 
 	//gunMeshComp->SetVisibility(true);
@@ -248,6 +277,7 @@ void ATPSPlayer::OnGameOver_Implementation()
 	// 게임 오버 시 일시 정지
 	UGameplayStatics::SetGamePaused(GetWorld(), true);
 }
+
 
 
 

@@ -5,6 +5,7 @@
 #include "CoreMinimal.h"
 #include "Engine/DataAsset.h"
 #include "MyInputDataAsset.h"
+#include "MyCharacterStatDataAsset.h"
 #include "MyDataConfigAsset.generated.h"
 
 /**
@@ -18,5 +19,11 @@ class UE5_PRACTICE_API UMyDataConfigAsset : public UDataAsset
 public :
 	UPROPERTY(EditDefaultsOnly)
 	TObjectPtr<UMyInputDataAsset> DA_Input;
+
+	UPROPERTY(EditDefaultsOnly)
+	TObjectPtr<UMyCharacterStatDataAsset> DA_Stats;
+
+	//UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Character Data")
+	//class UDataTable* CharacterDataTable;
 	
 };
