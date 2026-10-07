@@ -28,10 +28,16 @@ void AEnemyManager::BeginPlay()
 
 	// 스폰 위치 동적 할당
 	FindSpawnPoints();
+
+	// 서버만 적들을 생성할수 있다!
+	if (HasAuthority() == false)
+		return;
 }
 
 void AEnemyManager::CreateEnemy()
 {
+	FActorSpawnParameters SpawnParams;
+	SpawnParams.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AdjustIfPossibleButDontSpawnIfColliding;
 	// 랜덤 위치 구하기
 	int index = FMath::RandRange(0, spawnPoints.Num() - 1);
 	// 적 생성 및 배치하기
@@ -40,6 +46,8 @@ void AEnemyManager::CreateEnemy()
 	// 다시 랜덤 시간에 CreateEnemy 함수가 호출되도록 타이머 설정
 	float createTime = FMath::RandRange(minTime, maxTime);
 	GetWorld()->GetTimerManager().SetTimer(spawnTimerHandle, this, &AEnemyManager::CreateEnemy, createTime);
+
+
 }
 
 void AEnemyManager::FindSpawnPoints()

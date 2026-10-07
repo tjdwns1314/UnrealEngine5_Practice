@@ -1,7 +1,7 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
 
-#include "Weapon.h"
+#include "Combat/Weapon.h"
 #include"Kismet/GameplayStatics.h"
 #include "Player/PlayerAnim.h"
 #include "NiagaraFunctionLibrary.h"
@@ -10,7 +10,7 @@
 #include "NiagaraDataInterfaceArrayFunctionLibrary.h"
 #include"Enemy/EnemyFSM.h"
 #include "Player/TPSPlayer.h"
-#include "Bullet.h"
+#include "Combat/Bullet.h"
 
 // Sets default values
 AWeapon::AWeapon()

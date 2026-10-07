@@ -1,10 +1,10 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
 
-#include "TPSProjectGameMode.h"
+#include "Game/TPSProjectGameMode.h"
 #include "UE5_Practice.h"
-#include"US_GameState.h"
-#include"US_PlayerState.h"
+#include"Game/US_GameState.h"
+#include"Game/US_PlayerState.h"
 #include "UObject/ConstructorHelpers.h"
 
 ATPSProjectGameMode::ATPSProjectGameMode()

@@ -31,4 +31,13 @@ public:
 	UPROPERTY(VisibleAnywhere,BlueprintReadOnly,Category=FSMComponent)
 	class UEnemyFSM* fsm;
 
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "IHGame", meta = (AllowPrivateAccess = "true"))
+	TObjectPtr<class UAIPerceptionComponent> AISense;
+
+	//virtual void PostInitializeComponents() override;
+
+	//// 새로운 버전
+	//UFUNCTION()
+	//void OnTargetPerceptionUpdated(AActor* Actor, FAIStimulus Stimulus);
+
 };

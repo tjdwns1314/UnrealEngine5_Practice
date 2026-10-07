@@ -5,7 +5,7 @@
 #include "CoreMinimal.h"
 #include "Subsystems/GameInstanceSubsystem.h"
 #include "GameplayTagContainer.h"
-#include "US_CharacterStats.h"
+#include "Game/US_CharacterStats.h"
 #include "MyDataSubsystem.generated.h"
 
 class UInputAction;

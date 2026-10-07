@@ -6,7 +6,7 @@
 #include "PlayerFIre.h"
 #include "GameFramework/CharacterMovementComponent.h"
 #include "PlayerMove.h"
-#include "Weapon.h"
+#include "Combat/Weapon.h"
 
 
 void UPlayerAnim::NativeInitializeAnimation()
@@ -43,7 +43,7 @@ void UPlayerAnim::NativeUpdateAnimation(float DeltaSeconds)
 		AO_Pitch = 0.0f;
 		return;
 	}
-
+	tpsPlayer->UpdateAimOffset(DeltaSeconds);
 	AO_Yaw = tpsPlayer->AO_Yaw;
 	AO_Pitch = tpsPlayer->AO_Pitch;
 

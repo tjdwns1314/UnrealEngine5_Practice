@@ -105,6 +105,10 @@ void UEnemyFSM::MoveState()
 
 	// NavigationSystem 객체 얻어오기
 	auto ns = UNavigationSystemV1::GetNavigationSystem(GetWorld());
+	if (!ns || !ai)
+	{
+		return;
+	}
 
 	// 목적지 길 찾기 경로 데이터 검색
 	FPathFindingQuery query; // 길 찾기 요청서
@@ -259,9 +263,15 @@ void UEnemyFSM::OnDamageProcess()
 bool UEnemyFSM::GetRandomPositionInNavMesh(FVector centerLocation, float radius, FVector& dest)
 {
 	auto ns = UNavigationSystemV1::GetNavigationSystem(GetWorld());
+	if (!ns)
+	{
+		dest = centerLocation;
+		return false;
+	}
+
 	FNavLocation loc;
 	bool result = ns->GetRandomReachablePointInRadius(centerLocation, radius, loc);
-	dest = loc.Location;
+	dest = result ? loc.Location : centerLocation;
 	return result;
 }
 

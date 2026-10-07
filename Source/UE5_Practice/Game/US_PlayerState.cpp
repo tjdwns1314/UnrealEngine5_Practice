@@ -1,13 +1,14 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
 
-#include "US_PlayerState.h"
+#include "Game/US_PlayerState.h"
 #include "Player/TPSPlayer.h"
-#include "US_CharacterStats.h"
+#include "Game/US_CharacterStats.h"
 #include "Net/UnrealNetwork.h"
 #include "System/MyDataSubsystem.h"
 #include "Player/PlayerMove.h" // UPlayerMove 사용을 위해 추가
 
+// 서버가 호출하는 함수
 void AUS_PlayerState::UpdateCharacterStatsFromSubsystem()
 {
 	if (const auto Character = Cast<ATPSPlayer>(GetPawn()))
@@ -26,7 +27,7 @@ void AUS_PlayerState::UpdateCharacterStatsFromSubsystem()
 	}
 }
 
-
+// 서버만 실행
 void AUS_PlayerState::AddXp(int32 Value)
 {
 	Xp += Value;
@@ -41,9 +42,11 @@ void AUS_PlayerState::AddXp(int32 Value)
 		{
 			GEngine->AddOnScreenDebugMessage(3, 5.f, FColor::Red, TEXT("Level Up!"));
 
+			// 서버만 캐릭터 레벨업
 			CharacterLevel++;
 			if (UMyDataSubsystem* DataSubsystem = GetGameInstance()->GetSubsystem<UMyDataSubsystem>())
 			{
+				// 서버만 스탯 갱신
 				Character->CharacterStats = DataSubsystem->ReturnUpdatedCharacterStats(CharacterLevel);
 				UpdateCharacterStatsFromSubsystem();
 			}

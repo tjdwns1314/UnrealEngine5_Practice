@@ -4,7 +4,7 @@
 
 #include "CoreMinimal.h"
 #include "PlayerBaseComponent.h"
-#include "US_CharacterStats.h"
+#include "Game/US_CharacterStats.h"
 #include "PlayerMove.generated.h"
 
 /**
@@ -139,4 +139,7 @@ public:
 
 		UFUNCTION(Server, Reliable)
 		void SprintEnd_Server();
+
+		UFUNCTION(NetMulticast, Reliable)
+		void UpdateWalkSpeed_Multicast(float Speed);
 };

@@ -2,7 +2,7 @@
 
 
 #include "System/MyCharacterStatDataAsset.h"
-#include "US_CharacterStats.h"
+#include "Game/US_CharacterStats.h"
 #include "Engine/DataTable.h"
 
 //void UMyCharacterStatDataAsset::UpdateCharacterStats(int32 CharacterLevel)

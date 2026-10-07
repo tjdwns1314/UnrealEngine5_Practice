@@ -107,6 +107,6 @@ public:
 		UPROPERTY(EditAnywhere, Category = "IHGame|Value")
 		float MeshVisibleDistance = 100;
 
-
+		float GetRenderYaw() const;
 
 };

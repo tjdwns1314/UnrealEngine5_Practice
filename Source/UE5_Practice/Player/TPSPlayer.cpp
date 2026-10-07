@@ -10,11 +10,11 @@
 #include "PlayerFire.h"
 #include "UE5_Practice.h"
 #include <Kismet/GameplayStatics.h>
-#include "MyHUD.h"
+#include "UI/MyHUD.h"
 #include "System/MyGameInstance.h"
 #include "System/MyInputDataAsset.h"
 #include "System/MyDataConfigAsset.h"
-#include "US_CharacterStats.h"
+#include "Game/US_CharacterStats.h"
 #include "System/MyDataSubsystem.h"
 
 
@@ -136,6 +136,8 @@ void ATPSPlayer::BeginPlay()
 	//gunMeshComp->SetVisibility(true);
 	//sniperGunComp->SetVisibility(false);
 
+	AO_StartYaw = GetRenderYaw();
+
 	hp = initialHp;
 }
 
@@ -159,7 +161,7 @@ void ATPSPlayer::Tick(float DeltaTime)
 	}
 
 
-		UpdateAimOffset(DeltaTime);
+		//UpdateAimOffset(DeltaTime);
 		UpdateCrossHair();
 
 }
@@ -198,11 +200,18 @@ void ATPSPlayer::OnHitEvent()
 
 void ATPSPlayer::UpdateAimOffset(float DeltaTime)
 {
+
+	// 액터의 눈의 위치로 Pitch를 계산하면 편한다
+	// 로컬 캐릭터는 -90이 계산되지만, 원격 캐릭터는 0~360 사이의 정규화값으로 들어온다.
+
+	AO_Pitch = GetBaseAimRotation().Pitch; // 270도가 패킷으로 넘겨받았다.
+	AO_Pitch = FRotator::NormalizeAxis(AO_Pitch);	// 270 -> -90
+
 	AController* CurrentController = GetController();
-	if (!CurrentController)
-	{
-		return;
-	}
+	//if (!CurrentController)
+	//{
+	//	return;
+	//}
 	FVector Velocity = GetVelocity();
 	float Speed = Velocity.Size2D();  // 높이에 대한 속도는 무시하고, 수평속도만 계산
 	bool bIsInAir = GetCharacterMovement()->IsFalling();
@@ -211,7 +220,8 @@ void ATPSPlayer::UpdateAimOffset(float DeltaTime)
 	if (Speed == 0.f && !bIsInAir)
 	{
 		// 현재 회전값
-		float CurrentYaw = GetController()->GetControlRotation().Yaw;
+		//float CurrentYaw = GetController()->GetControlRotation().Yaw;
+		float CurrentYaw = GetRenderYaw();
 
 		// -180~180 사이의 차이값으로 정규화해서 넘겨준다.
 		float DeltaYaw = FMath::FindDeltaAngleDegrees(AO_StartYaw, CurrentYaw);
@@ -220,19 +230,31 @@ void ATPSPlayer::UpdateAimOffset(float DeltaTime)
 		AO_Yaw = DeltaYaw;  //CurrentYaw - AO_StartYaw;
 
 		// 에임오프셋이 적용될때는, 컨트롤러가 회전해도 캐릭터는 제자리에 서있어야 한다.
-		bUseControllerRotationYaw = false;
+		//bUseControllerRotationYaw = false;
 	}
 	else
 	{
 		AO_Yaw = 0;
-		AO_StartYaw = GetController()->GetControlRotation().Yaw;  // 이동 중에는 시작값을 계속 갱신
+		AO_StartYaw = GetRenderYaw();  // 이동 중에는 시작값을 계속 갱신
 
 		// 달리기 시작하면, TPS 장르처럼 카메라 방향으로 캐릭터가 회전해야한다.
-		bUseControllerRotationYaw = true;
+		//bUseControllerRotationYaw = true;
 	}
 
 	// 액터의 눈의 위치로 Pitch를 계산하면 편하다
-	AO_Pitch = GetBaseAimRotation().Pitch;
+	//AO_Pitch = GetBaseAimRotation().Pitch;
+}
+
+float ATPSPlayer::GetRenderYaw() const
+{
+	// 내 캐릭터는 컨트롤러 회전이 매 프레임 액터에 바로 적용되고, 메시 스무딩도 없다.
+
+	if (IsLocallyControlled() || HasAuthority())
+	{
+		return GetActorRotation().Yaw;
+	}
+
+	return GetMesh()->GetComponentRotation().Yaw;
 }
 
 void ATPSPlayer::UpdateCrossHair()
@@ -245,7 +267,6 @@ void ATPSPlayer::UpdateCrossHair()
 	AMyHUD* HUD = Cast<AMyHUD>(PlayerController->GetHUD());
 	if (HUD == nullptr)
 		return;
-
 
 	// 1. 이동이 있으면 크로스헤어 벌어진다.
 	// Velocity 값 기준으로 얼만큼 벌어지게 할지 결정.

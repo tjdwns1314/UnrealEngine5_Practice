@@ -8,11 +8,11 @@
 #include "System/MyGameInstance.h"
 #include "System/MyDataConfigAsset.h"
 #include "System/MyCharacterStatDataAsset.h"
-#include "US_CharacterStats.h"
+#include "Game/US_CharacterStats.h"
 #include "GameplayTagContainer.h"
 #include "System/MyGameplayTags.h"
 #include "Kismet/GameplayStatics.h"
-#include "InteractInterface.h"
+#include "Interaction/InteractInterface.h"
 #include "UE5_Practice.h"
 
 void UPlayerMove::SetupInputBinding(UEnhancedInputComponent* PlayerInput)
@@ -178,21 +178,23 @@ void UPlayerMove::Interact()
 
 void UPlayerMove::RunStarted()
 {
-	BRunning = true;
-	if (moveComp)
-	{
-		moveComp->MaxWalkSpeed = CurrentStats.SprintSpeed;
-	}
+	PrintLogWithRole(me, TEXT("RunStarted"), FColor::Red, 10);
+	//BRunning = true;
+	//if (moveComp)
+	//{
+	//	moveComp->MaxWalkSpeed = CurrentStats.SprintSpeed;
+	//}
 	SprintStart_Server();
 }
 
 void UPlayerMove::RunCompleted()
 {
-	BRunning = false;
-	if (moveComp)
-	{
-		moveComp->MaxWalkSpeed = CurrentStats.WalkSpeed;
-	}
+	PrintLogWithRole(me, TEXT("RunComplete"), FColor::Red, 10);
+	//BRunning = false;
+	//if (moveComp)
+	//{
+	//	moveComp->MaxWalkSpeed = CurrentStats.WalkSpeed;
+	//}
 	SprintEnd_Server();
 
 }
@@ -202,6 +204,7 @@ void UPlayerMove::InputJump(const FInputActionValue& inputValue)
 	me->Jump();
 }
 
+// 서버가 호출하는 스탯 갱신
 void UPlayerMove::SetCharacterStats(const FUS_CharacterStats& NewStats)
 {
 	CurrentStats = NewStats;
@@ -209,23 +212,39 @@ void UPlayerMove::SetCharacterStats(const FUS_CharacterStats& NewStats)
 		CurrentStats.WalkSpeed, CurrentStats.SprintSpeed);
 	if (moveComp)
 	{
-		moveComp->MaxWalkSpeed =
-			BRunning ? CurrentStats.SprintSpeed : CurrentStats.WalkSpeed;
+		// 서버는 레벨업한 스피드를 알고있어.
+		moveComp->MaxWalkSpeed = BRunning ? CurrentStats.SprintSpeed : CurrentStats.WalkSpeed;
+		
+		UpdateWalkSpeed_Multicast(moveComp->MaxWalkSpeed);
 	}
 }
 
 void UPlayerMove::SprintStart_Server_Implementation()
 {
+	BRunning = true;
 	if (moveComp)
 	{
 		moveComp->MaxWalkSpeed = CurrentStats.SprintSpeed;
+		UpdateWalkSpeed_Multicast(moveComp->MaxWalkSpeed);
 	}
 }
 void UPlayerMove::SprintEnd_Server_Implementation()
 {
+	BRunning = false;
 	if (moveComp)
 	{
 		moveComp->MaxWalkSpeed = CurrentStats.WalkSpeed;
+		UpdateWalkSpeed_Multicast(moveComp->MaxWalkSpeed);
+	}
+}
+
+void UPlayerMove::UpdateWalkSpeed_Multicast_Implementation(float Speed)
+{
+	PrintLogWithRole(me, *FString::Printf(TEXT("Multicast %f"), Speed), FColor::Red, 10);
+
+	if (moveComp)
+	{
+		moveComp->MaxWalkSpeed = Speed;
 	}
 }
 
